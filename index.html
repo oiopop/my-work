@@ -6,6 +6,8 @@
 <title>VIP Link-in-Bio</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--gold:#c9a84c;--bright:#f1d38e;--dark:#050505;--card:#0c0c0c;--border:rgba(201,168,76,0.2)}
@@ -316,18 +318,47 @@ label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:r
 </div>
 
 <script>
-// ── Config ─────────────────────────────────────────────────────────────────────
+// ── Firebase Init ───────────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyAbfUoCM_X4k6wM3l_rAS4yNNeIGtqkleQ",
+  authDomain: "my-work-f350e.firebaseapp.com",
+  projectId: "my-work-f350e",
+  storageBucket: "my-work-f350e.firebasestorage.app",
+  messagingSenderId: "814267301097",
+  appId: "1:814267301097:web:ad890201052a685f6a0478"
+});
+const db = firebase.firestore();
+const COL = "clients";
+
+// ── App Config ──────────────────────────────────────────────────────────────────
 const SUPER_PASS = "ADMIN2026"; // ← غيّر كلمة السر هنا
-const STORAGE_KEY = "vip_clients_v3";
 const BASE_URL = window.location.origin + window.location.pathname;
 
-// ── Data ───────────────────────────────────────────────────────────────────────
-function loadClients() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
+// ── Cache ───────────────────────────────────────────────────────────────────────
+let _cache = [];
+
+// ── Firestore Helpers ───────────────────────────────────────────────────────────
+async function loadClientsDB() {
+  try {
+    const snap = await db.collection(COL).orderBy("createdAt","asc").get();
+    _cache = snap.docs.map(d => d.data());
+  } catch(e) { _cache = []; }
+  return _cache;
 }
-function saveClients(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+async function upsertClientDB(client) {
+  await db.collection(COL).doc(client.id).set(client);
+  const idx = _cache.findIndex(c=>c.id===client.id);
+  if(idx>=0) _cache[idx]=client; else _cache.push(client);
+}
+async function deleteClientDB(id) {
+  await db.collection(COL).doc(id).delete();
+  _cache = _cache.filter(c=>c.id!==id);
+}
+async function findBySlugDB(slug) {
+  try {
+    const snap = await db.collection(COL).where("slug","==",slug).limit(1).get();
+    return snap.empty ? null : snap.docs[0].data();
+  } catch(e) { return null; }
 }
 
 // ── Router ─────────────────────────────────────────────────────────────────────
@@ -353,25 +384,27 @@ function show(id) {
   target.style.display = "flex";
 }
 
-function route() {
+async function route() {
   const parts = getHashParts();
   if (parts) {
     let client = null;
-    // اولاً: فك تشفير البيانات من الرابط نفسه
+    // اولاً: فك تشفير البيانات من الرابط نفسه (يشتغل بدون انترنت)
     if (parts.data) {
       try { client = JSON.parse(decodeURIComponent(atob(parts.data))); } catch(e) { client = null; }
     }
-    // ثانياً: اذا ما في بيانات في الرابط، ابحث في localStorage (للأدمن نفسه)
+    // ثانياً: اذا ما في بيانات في الرابط، ابحث في Firestore
     if (!client) {
-      const clients = loadClients();
-      client = clients.find(c => c.slug === parts.slug) || null;
+      show("view-profile");
+      document.getElementById("view-profile").innerHTML =
+        `<div style="color:var(--gold);font-size:32px;margin:auto">⏳</div>`;
+      client = await findBySlugDB(parts.slug);
     }
     if (client) { show("view-profile"); renderProfile(client, document.getElementById("view-profile")); }
     else show("view-404");
     return;
   }
   if (isAdmin()) {
-    if (sessionStorage.getItem("admin_ok") === "1") { show("view-admin"); renderList(); }
+    if (sessionStorage.getItem("admin_ok") === "1") { show("view-admin"); await renderList(); }
     else show("view-login");
     return;
   }
@@ -389,7 +422,7 @@ function checkPw() {
   if (v === SUPER_PASS) {
     sessionStorage.setItem("admin_ok","1");
     document.getElementById("pw-err").style.display="none";
-    show("view-admin"); renderList();
+    show("view-admin"); await renderList();
   } else {
     document.getElementById("pw-err").style.display="block";
   }
@@ -442,8 +475,7 @@ function renderProfile(c, container) {
 
 // ── Preview Modal ──────────────────────────────────────────────────────────────
 function openPreview(id) {
-  const clients = loadClients();
-  const c = clients.find(x=>x.id===id);
+  const c = _cache.find(x=>x.id===id);
   if(!c) return;
   const wrap = document.getElementById("preview-profile-wrap");
   renderProfile(c, wrap);
@@ -454,8 +486,8 @@ function closePreview() {
 }
 
 // ── Admin List ─────────────────────────────────────────────────────────────────
-function renderList() {
-  const clients = loadClients();
+async function renderList() {
+  const clients = await loadClientsDB();
   const q = (document.getElementById("search-input")||{}).value || "";
   const filtered = clients.filter(c =>
     c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q)
@@ -537,8 +569,7 @@ function buildClientUrl(c) {
 }
 
 function copyLink(slug, id) {
-  const clients = loadClients();
-  const c = clients.find(x=>x.id===id);
+  const c = _cache.find(x=>x.id===id);
   const url = c ? buildClientUrl(c) : `${BASE_URL}#/u/${slug}`;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).catch(()=>fallbackCopy(url));
@@ -570,9 +601,9 @@ function showToast(msg) {
 function confirmDelete(id) {
   document.getElementById(`del-confirm-${id}`).style.display="block";
 }
-function deleteClient(id) {
-  let clients = loadClients().filter(c=>c.id!==id);
-  saveClients(clients); renderList();
+async function deleteClient(id) {
+  await deleteClientDB(id);
+  await renderList();
 }
 
 // ── Form ───────────────────────────────────────────────────────────────────────
@@ -585,7 +616,7 @@ function showAddForm() {
 }
 
 function editClient(id) {
-  const c = loadClients().find(x=>x.id===id);
+  const c = _cache.find(x=>x.id===id);
   if(!c) return;
   clearForm();
   document.getElementById("form-title").textContent = "✏️ تعديل الزبون";
@@ -627,7 +658,7 @@ function clearForm() {
   document.getElementById("photo-remove-btn").style.display="none";
 }
 
-function saveClient() {
+async function saveClient() {
   const nameAr = document.getElementById("f-nameAr").value.trim();
   const nameEn = document.getElementById("f-nameEn").value.trim();
   const slug   = document.getElementById("f-slug").value.trim().toLowerCase();
@@ -646,22 +677,18 @@ function saveClient() {
   if(!/^[a-z0-9_-]+$/.test(slug)){ showSlugErr("أحرف إنكليزية صغيرة وأرقام فقط"); return; }
   document.getElementById("slug-err").style.display="none";
 
-  let clients = loadClients();
-
-  // Check duplicate slug
-  if(clients.find(c=>c.slug===slug && c.id!==editId)){
+  // Check duplicate slug using cache
+  if(_cache.find(c=>c.slug===slug && c.id!==editId)){
     showSlugErr("هذا الرابط موجود مسبقاً، اختر رابطاً آخر"); return;
   }
 
-  if(editId) {
-    clients = clients.map(c=>c.id===editId?{...c,nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo}:c);
-  } else {
-    clients.push({id:Date.now().toString(),nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo});
-  }
+  const client = editId
+    ? {...(_cache.find(c=>c.id===editId)||{}), nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo, id:editId}
+    : {id:Date.now().toString(), createdAt:Date.now(), nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo};
 
-  saveClients(clients);
+  await upsertClientDB(client);
   cancelForm();
-  renderList();
+  await renderList();
   showToast(editId?"✅ تم التعديل!":"✅ تمت الإضافة!");
 }
 
