@@ -318,7 +318,9 @@ label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:r
 </div>
 
 <script>
-// ── Firebase Init ───────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Firebase Init
+// ══════════════════════════════════════════════════
 firebase.initializeApp({
   apiKey: "AIzaSyAbfUoCM_X4k6wM3l_rAS4yNNeIGtqkleQ",
   authDomain: "my-work-f350e.firebaseapp.com",
@@ -327,71 +329,82 @@ firebase.initializeApp({
   messagingSenderId: "814267301097",
   appId: "1:814267301097:web:ad890201052a685f6a0478"
 });
-const db = firebase.firestore();
-const COL = "clients";
+var db  = firebase.firestore();
+var COL = "clients";
 
-// ── App Config ──────────────────────────────────────────────────────────────────
-const SUPER_PASS = "ADMIN2026"; // ← غيّر كلمة السر هنا
-const BASE_URL = window.location.origin + window.location.pathname;
+// ══════════════════════════════════════════════════
+//  Config
+// ══════════════════════════════════════════════════
+var SUPER_PASS = "ADMIN2026";
+var BASE_URL   = window.location.origin + window.location.pathname;
+var _cache     = [];
 
-// ── Cache ───────────────────────────────────────────────────────────────────────
-let _cache = [];
-
-// ── Firestore Helpers ───────────────────────────────────────────────────────────
-async function loadClientsDB() {
-  try {
-    const snap = await db.collection(COL).orderBy("createdAt","asc").get();
-    _cache = snap.docs.map(d => d.data());
-  } catch(e) { _cache = []; }
-  return _cache;
-}
-async function upsertClientDB(client) {
-  await db.collection(COL).doc(client.id).set(client);
-  const idx = _cache.findIndex(c=>c.id===client.id);
-  if(idx>=0) _cache[idx]=client; else _cache.push(client);
-}
-async function deleteClientDB(id) {
-  await db.collection(COL).doc(id).delete();
-  _cache = _cache.filter(c=>c.id!==id);
-}
-async function findBySlugDB(slug) {
-  try {
-    const snap = await db.collection(COL).where("slug","==",slug).limit(1).get();
-    return snap.empty ? null : snap.docs[0].data();
-  } catch(e) { return null; }
+// ══════════════════════════════════════════════════
+//  Firestore helpers
+// ══════════════════════════════════════════════════
+function loadClientsDB() {
+  return db.collection(COL).orderBy("createdAt","asc").get()
+    .then(function(snap) {
+      _cache = snap.docs.map(function(d){ return d.data(); });
+      return _cache;
+    })
+    .catch(function(){ _cache = []; return []; });
 }
 
-// ── Router ─────────────────────────────────────────────────────────────────────
+function upsertClientDB(client) {
+  return db.collection(COL).doc(client.id).set(client)
+    .then(function() {
+      var idx = _cache.findIndex(function(c){ return c.id === client.id; });
+      if(idx >= 0) _cache[idx] = client; else _cache.push(client);
+    });
+}
+
+function deleteClientDB(id) {
+  return db.collection(COL).doc(id).delete()
+    .then(function() {
+      _cache = _cache.filter(function(c){ return c.id !== id; });
+    });
+}
+
+function findBySlugDB(slug) {
+  return db.collection(COL).where("slug","==",slug).limit(1).get()
+    .then(function(snap) {
+      return snap.empty ? null : snap.docs[0].data();
+    })
+    .catch(function(){ return null; });
+}
+
+// ══════════════════════════════════════════════════
+//  Router
+// ══════════════════════════════════════════════════
 function getSlug() {
-  const h = window.location.hash;
-  if (h.startsWith("#/u/")) return h.slice(4).split("|")[0];
+  var h = window.location.hash;
+  if(h.startsWith("#/u/")) return h.slice(4);
   return null;
 }
 function isAdmin() { return window.location.hash === "#/admin"; }
 
 function show(id) {
-  ["view-home","view-login","view-admin","view-profile","view-404"]
-    .forEach(v => {
-      const el = document.getElementById(v);
-      el.style.display = "none";
-    });
-  const target = document.getElementById(id);
-  target.style.display = "flex";
+  ["view-home","view-login","view-admin","view-profile","view-404"].forEach(function(v) {
+    document.getElementById(v).style.display = "none";
+  });
+  document.getElementById(id).style.display = "flex";
 }
 
-async function route() {
-  const slug = getSlug();
-  if (slug) {
+function route() {
+  var slug = getSlug();
+  if(slug) {
     show("view-profile");
     document.getElementById("view-profile").innerHTML =
-      `<div style="color:var(--gold);font-size:32px;margin:auto;padding:40vh 0">⏳</div>`;
-    const client = await findBySlugDB(slug);
-    if (client) { renderProfile(client, document.getElementById("view-profile")); }
-    else show("view-404");
+      '<div style="color:var(--gold);font-size:40px;margin:auto;padding:40vh 0 0 0">⏳</div>';
+    findBySlugDB(slug).then(function(client) {
+      if(client) renderProfile(client, document.getElementById("view-profile"));
+      else show("view-404");
+    });
     return;
   }
-  if (isAdmin()) {
-    if (sessionStorage.getItem("admin_ok") === "1") { show("view-admin"); await renderList(); }
+  if(isAdmin()) {
+    if(sessionStorage.getItem("admin_ok") === "1") { show("view-admin"); renderList(); }
     else show("view-login");
     return;
   }
@@ -401,164 +414,160 @@ async function route() {
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", route);
 
-// ── Auth ───────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Auth
+// ══════════════════════════════════════════════════
 function goAdmin() { window.location.hash = "#/admin"; }
 
-async function checkPw() {
-  const v = document.getElementById("pw-input").value;
-  if (v === SUPER_PASS) {
+function checkPw() {
+  var v = document.getElementById("pw-input").value;
+  if(v === SUPER_PASS) {
     sessionStorage.setItem("admin_ok","1");
-    document.getElementById("pw-err").style.display="none";
-    show("view-admin"); await renderList();
+    document.getElementById("pw-err").style.display = "none";
+    show("view-admin");
+    renderList();
   } else {
-    document.getElementById("pw-err").style.display="block";
+    document.getElementById("pw-err").style.display = "block";
   }
 }
 
-// ── Profile Renderer ───────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Profile Renderer
+// ══════════════════════════════════════════════════
 function renderProfile(c, container) {
-  const socials = [
-    {key:"wa",   cls:"fab fa-whatsapp",      href: c.wa   ? `https://wa.me/${c.wa}` : null},
-    {key:"ig",   cls:"fab fa-instagram",      href: c.ig   ? `https://instagram.com/${c.ig.replace("@","")}` : null},
-    {key:"tg",   cls:"fab fa-telegram-plane", href: c.tg   ? `https://t.me/${c.tg.replace("@","")}` : null},
-    {key:"fb",   cls:"fab fa-facebook-f",     href: c.fb   || null},
-    {key:"tt",   cls:"fab fa-tiktok",         href: c.tt   ? `https://www.tiktok.com/@${c.tt.replace("@","")}` : null},
-    {key:"pubg", cls:"fas fa-gamepad",        href: c.pubg || null},
-  ].filter(s=>s.href);
+  var socials = [
+    {cls:"fab fa-whatsapp",      href: c.wa   ? "https://wa.me/"+c.wa : null},
+    {cls:"fab fa-instagram",     href: c.ig   ? "https://instagram.com/"+c.ig.replace("@","") : null},
+    {cls:"fab fa-telegram-plane",href: c.tg   ? "https://t.me/"+c.tg.replace("@","") : null},
+    {cls:"fab fa-facebook-f",    href: c.fb   || null},
+    {cls:"fab fa-tiktok",        href: c.tt   ? "https://www.tiktok.com/@"+c.tt.replace("@","") : null},
+    {cls:"fas fa-gamepad",       href: c.pubg || null}
+  ].filter(function(s){ return s.href; });
 
-  // نجوم عشوائية
-  let stars = "";
-  for(let i=0;i<18;i++){
-    const x=Math.random()*100, y=Math.random()*100;
-    const s=Math.random()*3+1, d=Math.random()*3;
-    stars+=`<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${d}s"></div>`;
+  var stars = "";
+  for(var i=0;i<18;i++){
+    var x=Math.random()*100, y=Math.random()*100, s=Math.random()*3+1, d=Math.random()*3;
+    stars+='<div class="star" style="left:'+x+'%;top:'+y+'%;width:'+s+'px;height:'+s+'px;animation-delay:'+d+'s"></div>';
   }
 
-  const photoHTML = c.photo
-    ? `<img src="${c.photo}" alt="">`
-    : `<i class="fa-solid fa-user"></i>`;
+  var photoHTML = c.photo ? '<img src="'+c.photo+'" alt="">' : '<i class="fa-solid fa-user"></i>';
+  var bioHTML   = c.bio   ? '<p class="p-bio">'+c.bio+'</p>' : "";
+  var socialHTML = socials.map(function(s){
+    return '<a href="'+s.href+'" target="_blank" rel="noreferrer"><i class="'+s.cls+'"></i></a>';
+  }).join("");
 
-  const bioHTML = c.bio
-    ? `<p class="p-bio">${c.bio}</p>` : "";
-
-  const socialHTML = socials.map(s=>
-    `<a href="${s.href}" target="_blank" rel="noreferrer"><i class="${s.cls}"></i></a>`
-  ).join("");
-
-  container.innerHTML = `
-    ${stars}
-    <div class="avatar-wrap">
-      <div class="ring"></div>
-      <div class="ring-gap"></div>
-      <div class="avatar-inner">${photoHTML}</div>
-    </div>
-    <h1 class="p-name-ar">${c.nameAr}</h1>
-    <h2 class="p-name-en">${c.nameEn}</h2>
-    <p class="p-tag">Link-in-bio</p>
-    ${bioHTML}
-    ${socials.length ? `<div class="social-row">${socialHTML}</div>` : ""}
-  `;
+  container.innerHTML =
+    stars +
+    '<div class="avatar-wrap"><div class="ring"></div><div class="ring-gap"></div><div class="avatar-inner">'+photoHTML+'</div></div>' +
+    '<h1 class="p-name-ar">'+c.nameAr+'</h1>' +
+    '<h2 class="p-name-en">'+c.nameEn+'</h2>' +
+    '<p class="p-tag">Link-in-bio</p>' +
+    bioHTML +
+    (socials.length ? '<div class="social-row">'+socialHTML+'</div>' : "");
 }
 
-// ── Preview Modal ──────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Preview Modal
+// ══════════════════════════════════════════════════
 function openPreview(id) {
-  const c = _cache.find(x=>x.id===id);
+  var c = _cache.find(function(x){ return x.id === id; });
   if(!c) return;
-  const wrap = document.getElementById("preview-profile-wrap");
-  renderProfile(c, wrap);
+  renderProfile(c, document.getElementById("preview-profile-wrap"));
   document.getElementById("preview-modal").classList.add("open");
 }
 function closePreview() {
   document.getElementById("preview-modal").classList.remove("open");
 }
 
-// ── Admin List ─────────────────────────────────────────────────────────────────
-async function renderList() {
-  const clients = await loadClientsDB();
-  const q = (document.getElementById("search-input")||{}).value || "";
-  const filtered = clients.filter(c =>
-    c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q)
-  );
+// ══════════════════════════════════════════════════
+//  Admin List
+// ══════════════════════════════════════════════════
+function buildClientCard(c) {
+  var link = BASE_URL + "#/u/" + c.slug;
+  var avatarHTML = c.photo
+    ? '<img src="' + c.photo + '" alt="" style="width:100%;height:100%;object-fit:cover">'
+    : '<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>';
+  var cid = c.id;
+  var div = document.createElement("div");
+  div.className = "client-card";
+  div.id = "card-" + cid;
+  div.innerHTML =
+    '<div class="client-top">' +
+      '<div class="client-avatar">' + avatarHTML + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<p style="color:#fff;font-weight:700;font-size:15px;margin-bottom:2px">' + c.nameAr + '</p>' +
+        '<p style="color:#555;font-size:12px">' + c.nameEn + '</p>' +
+      '</div>' +
+      '<button class="btn-sm" style="color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)" id="prev-btn-' + cid + '">👁️ معاينة</button>' +
+    '</div>' +
+    '<div class="link-box">' +
+      '<p>رابط الزبون الخاص — أرسله له مباشرة 🔗</p>' +
+      '<code>' + link + '</code>' +
+    '</div>' +
+    '<div class="client-actions">' +
+      '<button class="btn-sm" id="copy-btn-' + cid + '" style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)">📋 نسخ الرابط</button>' +
+      '<button class="btn-sm" id="edit-btn-' + cid + '" style="flex:1;color:#aaa;border-color:#2a2a2a;background:#111">✏️ تعديل</button>' +
+      '<button class="btn-sm" id="del-btn-' + cid + '" style="flex:1;color:#e55;border-color:rgba(229,85,85,.2);background:rgba(229,85,85,.06)">🗑️</button>' +
+    '</div>' +
+    '<div id="del-confirm-' + cid + '" class="del-confirm" style="display:none">' +
+      '<p style="color:#e55;margin-bottom:12px;font-size:13px">حذف <strong>' + c.nameAr + '</strong>؟</p>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button id="del-yes-' + cid + '" style="flex:1;background:#e55;border:none;border-radius:9px;padding:10px;color:#fff;font-weight:700;cursor:pointer">نعم، احذف</button>' +
+        '<button id="del-no-' + cid + '" style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;padding:10px;color:#aaa;cursor:pointer">إلغاء</button>' +
+      '</div>' +
+    '</div>';
 
-  document.getElementById("clients-count").textContent = `${clients.length} زبون مسجل`;
-  document.getElementById("search-box").style.display = clients.length ? "block" : "none";
+  // Attach events safely (no inline onclick)
+  div.querySelector("#prev-btn-" + cid).addEventListener("click", function(){ openPreview(cid); });
+  div.querySelector("#copy-btn-" + cid).addEventListener("click", function(){ copyLink(c.slug, cid); });
+  div.querySelector("#edit-btn-" + cid).addEventListener("click", function(){ editClient(cid); });
+  div.querySelector("#del-btn-"  + cid).addEventListener("click", function(){ confirmDelete(cid); });
+  div.querySelector("#del-yes-"  + cid).addEventListener("click", function(){ deleteClient(cid); });
+  div.querySelector("#del-no-"   + cid).addEventListener("click", function(){ document.getElementById("del-confirm-" + cid).style.display = "none"; });
 
-  const list = document.getElementById("clients-list");
-  if(filtered.length===0){ list.innerHTML=""; document.getElementById("empty-msg").style.display="block"; return; }
-  document.getElementById("empty-msg").style.display="none";
-
-  list.innerHTML = filtered.map(c => {
-    const link = buildClientUrl(c);
-    const avatarHTML = c.photo
-      ? `<img src="${c.photo}" alt="" style="width:100%;height:100%;object-fit:cover">`
-      : `<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>`;
-    return `
-    <div class="client-card" id="card-${c.id}">
-      <div class="client-top">
-        <div class="client-avatar">${avatarHTML}</div>
-        <div style="flex:1;min-width:0">
-          <p style="color:#fff;font-weight:700;font-size:15px;margin-bottom:2px">${c.nameAr}</p>
-          <p style="color:#555;font-size:12px">${c.nameEn}</p>
-        </div>
-        <button class="btn-sm" style="color:var(--gold);border-color:var(--border);
-          background:rgba(201,168,76,.08)" onclick="openPreview('${c.id}')">👁️ معاينة</button>
-      </div>
-
-      <div class="link-box">
-        <p>رابط الزبون الخاص — أرسله له مباشرة 🔗</p>
-        <code>${link}</code>
-      </div>
-
-      <div class="client-actions">
-        <button class="btn-sm" id="copy-btn-${c.id}"
-          style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)"
-          onclick="copyLink('${c.slug}','${c.id}')">
-          📋 نسخ الرابط
-        </button>
-        <button class="btn-sm" style="flex:1;color:#aaa;border-color:#2a2a2a;background:#111"
-          onclick="editClient('${c.id}')">✏️ تعديل</button>
-        <button class="btn-sm" style="flex:1;color:#e55;border-color:rgba(229,85,85,.2);background:rgba(229,85,85,.06)"
-          onclick="confirmDelete('${c.id}')">🗑️</button>
-      </div>
-
-      <div id="del-confirm-${c.id}" class="del-confirm" style="display:none">
-        <p style="color:#e55;margin-bottom:12px;font-size:13px">
-          حذف <strong>${c.nameAr}</strong>؟
-        </p>
-        <div style="display:flex;gap:8px">
-          <button style="flex:1;background:#e55;border:none;border-radius:9px;padding:10px;
-            color:#fff;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif"
-            onclick="deleteClient('${c.id}')">نعم، احذف</button>
-          <button style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;
-            padding:10px;color:#aaa;cursor:pointer;font-family:'Tajawal',sans-serif"
-            onclick="document.getElementById('del-confirm-${c.id}').style.display='none'">إلغاء</button>
-        </div>
-      </div>
-    </div>`;
-  }).join("");
+  return div;
 }
 
-// ── Copy ───────────────────────────────────────────────────────────────────────
-function buildClientUrl(c) {
-  return `${BASE_URL}#/u/${c.slug}`;
+function renderList() {
+  loadClientsDB().then(function(clients) {
+    var q = (document.getElementById("search-input")||{}).value || "";
+    var filtered = clients.filter(function(c) {
+      return c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q);
+    });
+
+    document.getElementById("clients-count").textContent = clients.length + " زبون مسجل";
+    document.getElementById("search-box").style.display = clients.length ? "block" : "none";
+
+    var list = document.getElementById("clients-list");
+    list.innerHTML = "";
+
+    if(filtered.length === 0) {
+      document.getElementById("empty-msg").style.display = "block";
+      return;
+    }
+    document.getElementById("empty-msg").style.display = "none";
+    filtered.forEach(function(c) { list.appendChild(buildClientCard(c)); });
+  });
 }
 
+// ══════════════════════════════════════════════════
+//  Copy Link
+// ══════════════════════════════════════════════════
 function copyLink(slug, id) {
-  const c = _cache.find(x=>x.id===id);
-  const url = c ? buildClientUrl(c) : `${BASE_URL}#/u/${slug}`;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url).catch(()=>fallbackCopy(url));
+  var url = BASE_URL + "#/u/" + slug;
+  if(navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).catch(function(){ fallbackCopy(url); });
   } else { fallbackCopy(url); }
-  const btn = document.getElementById(`copy-btn-${id}`);
-  btn.textContent = "✅ تم النسخ!";
-  btn.style.color = "#4caf50";
-  btn.style.borderColor = "#4caf50";
+  var btn = document.getElementById("copy-btn-"+id);
+  if(btn){ btn.textContent="✅ تم النسخ!"; btn.style.color="#4caf50"; btn.style.borderColor="#4caf50"; }
   showToast("✅ تم نسخ رابط الزبون!");
-  setTimeout(()=>{ btn.textContent="📋 نسخ الرابط"; btn.style.color="var(--gold)"; btn.style.borderColor="var(--border)"; },3000);
+  setTimeout(function(){
+    if(btn){ btn.textContent="📋 نسخ الرابط"; btn.style.color="var(--gold)"; btn.style.borderColor="var(--border)"; }
+  }, 3000);
 }
 
 function fallbackCopy(text) {
-  const ta = document.createElement("textarea");
+  var ta = document.createElement("textarea");
   ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
   document.body.appendChild(ta); ta.focus(); ta.select();
   try { document.execCommand("copy"); } catch(e){}
@@ -566,22 +575,25 @@ function fallbackCopy(text) {
 }
 
 function showToast(msg) {
-  const t = document.getElementById("toast");
+  var t = document.getElementById("toast");
   t.textContent = msg;
   t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),2500);
+  setTimeout(function(){ t.classList.remove("show"); }, 2500);
 }
 
-// ── Delete ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Delete
+// ══════════════════════════════════════════════════
 function confirmDelete(id) {
-  document.getElementById(`del-confirm-${id}`).style.display="block";
+  document.getElementById("del-confirm-"+id).style.display = "block";
 }
-async function deleteClient(id) {
-  await deleteClientDB(id);
-  await renderList();
+function deleteClient(id) {
+  deleteClientDB(id).then(function(){ renderList(); });
 }
 
-// ── Form ───────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Form
+// ══════════════════════════════════════════════════
 function showAddForm() {
   clearForm();
   document.getElementById("form-title").textContent = "➕ إضافة زبون جديد";
@@ -591,21 +603,21 @@ function showAddForm() {
 }
 
 function editClient(id) {
-  const c = _cache.find(x=>x.id===id);
+  var c = _cache.find(function(x){ return x.id === id; });
   if(!c) return;
   clearForm();
   document.getElementById("form-title").textContent = "✏️ تعديل الزبون";
-  document.getElementById("f-edit-id").value = id;
-  document.getElementById("f-nameAr").value = c.nameAr||"";
-  document.getElementById("f-nameEn").value = c.nameEn||"";
-  document.getElementById("f-slug").value   = c.slug||"";
-  document.getElementById("f-bio").value    = c.bio||"";
-  document.getElementById("f-wa").value     = c.wa||"";
-  document.getElementById("f-ig").value     = c.ig||"";
-  document.getElementById("f-tg").value     = c.tg||"";
-  document.getElementById("f-fb").value     = c.fb||"";
-  document.getElementById("f-tt").value     = c.tt||"";
-  document.getElementById("f-pubg").value   = c.pubg||"";
+  document.getElementById("f-edit-id").value  = id;
+  document.getElementById("f-nameAr").value   = c.nameAr||"";
+  document.getElementById("f-nameEn").value   = c.nameEn||"";
+  document.getElementById("f-slug").value     = c.slug||"";
+  document.getElementById("f-bio").value      = c.bio||"";
+  document.getElementById("f-wa").value       = c.wa||"";
+  document.getElementById("f-ig").value       = c.ig||"";
+  document.getElementById("f-tg").value       = c.tg||"";
+  document.getElementById("f-fb").value       = c.fb||"";
+  document.getElementById("f-tt").value       = c.tt||"";
+  document.getElementById("f-pubg").value     = c.pubg||"";
   if(c.photo) setPhotoPreview(c.photo);
   updateSlugPreview();
   document.getElementById("client-form").style.display = "block";
@@ -614,102 +626,109 @@ function editClient(id) {
 
 function cancelForm() {
   clearForm();
-  document.getElementById("client-form").style.display="none";
+  document.getElementById("client-form").style.display = "none";
 }
 
 function clearForm() {
-  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg"].forEach(id=>{
-    document.getElementById(id).value="";
+  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg"].forEach(function(id){
+    document.getElementById(id).value = "";
   });
-  document.getElementById("f-photo").value="";
-  document.getElementById("f-edit-id").value="";
-  document.getElementById("slug-preview").style.display="none";
-  document.getElementById("slug-err").style.display="none";
-  document.getElementById("f-photo-input").value="";
-  const wrap = document.getElementById("photo-thumb-wrap");
-  wrap.innerHTML=`<i class="fa-solid fa-user" style="color:#333;font-size:22px" id="photo-placeholder"></i>`;
-  wrap.style.border="2px dashed #2a2a2a";
-  document.getElementById("photo-btn").textContent="رفع صورة 📤";
-  document.getElementById("photo-remove-btn").style.display="none";
+  document.getElementById("f-photo").value    = "";
+  document.getElementById("f-edit-id").value  = "";
+  document.getElementById("slug-preview").style.display = "none";
+  document.getElementById("slug-err").style.display     = "none";
+  document.getElementById("f-photo-input").value        = "";
+  var wrap = document.getElementById("photo-thumb-wrap");
+  wrap.innerHTML = '<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>';
+  wrap.style.border = "2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent          = "رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display = "none";
 }
 
-async function saveClient() {
-  const nameAr = document.getElementById("f-nameAr").value.trim();
-  const nameEn = document.getElementById("f-nameEn").value.trim();
-  const slug   = document.getElementById("f-slug").value.trim().toLowerCase();
-  const bio    = document.getElementById("f-bio").value.trim();
-  const wa     = document.getElementById("f-wa").value.trim();
-  const ig     = document.getElementById("f-ig").value.trim();
-  const tg     = document.getElementById("f-tg").value.trim();
-  const fb     = document.getElementById("f-fb").value.trim();
-  const tt     = document.getElementById("f-tt").value.trim();
-  const pubg   = document.getElementById("f-pubg").value.trim();
-  const photo  = document.getElementById("f-photo").value;
-  const editId = document.getElementById("f-edit-id").value;
+function saveClient() {
+  var nameAr = document.getElementById("f-nameAr").value.trim();
+  var nameEn = document.getElementById("f-nameEn").value.trim();
+  var slug   = document.getElementById("f-slug").value.trim().toLowerCase();
+  var bio    = document.getElementById("f-bio").value.trim();
+  var wa     = document.getElementById("f-wa").value.trim();
+  var ig     = document.getElementById("f-ig").value.trim();
+  var tg     = document.getElementById("f-tg").value.trim();
+  var fb     = document.getElementById("f-fb").value.trim();
+  var tt     = document.getElementById("f-tt").value.trim();
+  var pubg   = document.getElementById("f-pubg").value.trim();
+  var photo  = document.getElementById("f-photo").value;
+  var editId = document.getElementById("f-edit-id").value;
 
-  // Validate slug
   if(!slug){ showSlugErr("الرابط مطلوب"); return; }
   if(!/^[a-z0-9_-]+$/.test(slug)){ showSlugErr("أحرف إنكليزية صغيرة وأرقام فقط"); return; }
-  document.getElementById("slug-err").style.display="none";
+  document.getElementById("slug-err").style.display = "none";
 
-  // Check duplicate slug using cache
-  if(_cache.find(c=>c.slug===slug && c.id!==editId)){
+  if(_cache.find(function(c){ return c.slug===slug && c.id!==editId; })){
     showSlugErr("هذا الرابط موجود مسبقاً، اختر رابطاً آخر"); return;
   }
 
-  const client = editId
-    ? {...(_cache.find(c=>c.id===editId)||{}), nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo, id:editId}
-    : {id:Date.now().toString(), createdAt:Date.now(), nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo};
+  var existing = editId ? (_cache.find(function(c){ return c.id===editId; })||{}) : {};
+  var client = Object.assign({}, existing, {
+    id: editId || Date.now().toString(),
+    createdAt: existing.createdAt || Date.now(),
+    nameAr:nameAr, nameEn:nameEn, slug:slug, bio:bio,
+    wa:wa, ig:ig, tg:tg, fb:fb, tt:tt, pubg:pubg, photo:photo
+  });
 
-  await upsertClientDB(client);
-  cancelForm();
-  await renderList();
-  showToast(editId?"✅ تم التعديل!":"✅ تمت الإضافة!");
+  upsertClientDB(client).then(function(){
+    cancelForm();
+    renderList();
+    showToast(editId ? "✅ تم التعديل!" : "✅ تمت الإضافة!");
+  });
 }
 
 function showSlugErr(msg) {
-  const el = document.getElementById("slug-err");
+  var el = document.getElementById("slug-err");
   el.textContent = msg;
-  el.style.display="block";
+  el.style.display = "block";
 }
 
-// ── Slug preview ───────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Slug Preview
+// ══════════════════════════════════════════════════
 function updateSlugPreview() {
-  const slug = document.getElementById("f-slug").value.trim().toLowerCase();
-  const prev = document.getElementById("slug-preview");
+  var slug = document.getElementById("f-slug").value.trim().toLowerCase();
+  var prev = document.getElementById("slug-preview");
   if(slug) {
-    document.getElementById("slug-preview-text").textContent = `${BASE_URL}#/u/${slug}`;
-    prev.style.display="block";
+    document.getElementById("slug-preview-text").textContent = BASE_URL + "#/u/" + slug;
+    prev.style.display = "block";
   } else {
-    prev.style.display="none";
+    prev.style.display = "none";
   }
 }
 
-// ── Photo ──────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════
+//  Photo
+// ══════════════════════════════════════════════════
 function handlePhoto(e) {
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => setPhotoPreview(ev.target.result);
+  var file = e.target.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){ setPhotoPreview(ev.target.result); };
   reader.readAsDataURL(file);
 }
 
 function setPhotoPreview(src) {
   document.getElementById("f-photo").value = src;
-  const wrap = document.getElementById("photo-thumb-wrap");
-  wrap.style.border="2px solid var(--gold)";
-  wrap.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover">`;
-  document.getElementById("photo-btn").textContent="تغيير الصورة 🔄";
-  document.getElementById("photo-remove-btn").style.display="block";
+  var wrap = document.getElementById("photo-thumb-wrap");
+  wrap.style.border = "2px solid var(--gold)";
+  wrap.innerHTML = '<img src="'+src+'" style="width:100%;height:100%;object-fit:cover">';
+  document.getElementById("photo-btn").textContent          = "تغيير الصورة 🔄";
+  document.getElementById("photo-remove-btn").style.display = "block";
 }
 
 function removePhoto() {
-  document.getElementById("f-photo").value="";
-  document.getElementById("f-photo-input").value="";
-  const wrap = document.getElementById("photo-thumb-wrap");
-  wrap.innerHTML=`<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>`;
-  wrap.style.border="2px dashed #2a2a2a";
-  document.getElementById("photo-btn").textContent="رفع صورة 📤";
-  document.getElementById("photo-remove-btn").style.display="none";
+  document.getElementById("f-photo").value       = "";
+  document.getElementById("f-photo-input").value = "";
+  var wrap = document.getElementById("photo-thumb-wrap");
+  wrap.innerHTML    = '<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>';
+  wrap.style.border = "2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent          = "رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display = "none";
 }
 </script>
 </body>
