@@ -2,244 +2,297 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Amir Kadhim Al-Shiblawi | 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap');
-        
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #020202;
-            color: #ffffff;
-            -webkit-tap-highlight-color: transparent;
+            background: #06080f;
+            color: #e2e8f0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
+
+        #bg-canvas {
+            position: fixed; inset: 0;
+            z-index: 0; pointer-events: none;
+        }
+
+        .wrap {
+            position: relative; z-index: 2;
+            width: 100%; max-width: 440px;
+            padding: 0 20px 80px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            padding-top: 72px;
+            text-align: center;
+            margin-bottom: 44px;
+            width: 100%;
+            opacity: 0;
+            animation: fadeUp .8s cubic-bezier(.16,1,.3,1) .05s forwards;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 96px; height: 96px;
+            margin: 0 auto 24px;
+        }
+        .avatar-ring {
+            position: absolute; inset: -6px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #c9a84c, #e8c96e, #c9a84c, #8a6d2f, #c9a84c);
+            animation: spinRing 8s linear infinite;
+            z-index: 0;
+        }
+        .avatar-ring::after {
+            content: '';
+            position: absolute; inset: 3px;
+            border-radius: 50%;
+            background: #06080f;
+        }
+        .avatar-inner {
+            position: relative; z-index: 1;
+            width: 96px; height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0f2a20, #0a1a30);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: #c9a84c;
+        }
+        @keyframes spinRing { to { transform: rotate(360deg); } }
+
+        .name {
+            font-size: 26px; font-weight: 800;
+            color: #fff; letter-spacing: -.3px;
+            margin-bottom: 10px;
+        }
+        .gold-line {
+            width: 40px; height: 2px;
+            background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+            margin: 0 auto 14px;
+        }
+        .bio {
+            font-size: 11px; font-weight: 500;
+            color: #475569;
+            text-transform: uppercase; letter-spacing: 2.5px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        /* ── SECTION LABEL ── */
+        .section-label {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; margin-bottom: 16px;
+        }
+        .section-label span {
+            font-size: 9px; font-weight: 700;
+            color: #334155; text-transform: uppercase;
+            letter-spacing: 2px; white-space: nowrap;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .section-label::before, .section-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: rgba(255,255,255,.07);
+        }
+
+        /* ── LINK CARDS ── */
+        .links { width: 100%; display: flex; flex-direction: column; gap: 10px; }
 
         .link-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 1.1rem;
-            border-radius: 1.2rem;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: #f4f4f5;
-            margin-bottom: 1rem;
-            width: 100%;
+            position: relative;
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 18px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 18px;
+            text-decoration: none; color: #e2e8f0;
+            transition: all .25s cubic-bezier(.16,1,.3,1);
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeUp .6s cubic-bezier(.16,1,.3,1) forwards;
         }
+        .link-card:nth-child(1) { animation-delay: .15s; }
+        .link-card:nth-child(2) { animation-delay: .22s; }
+        .link-card:nth-child(3) { animation-delay: .29s; }
+        .link-card:nth-child(4) { animation-delay: .36s; }
 
-        .link-card:active {
-            transform: scale(0.97);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #3b82f6;
+        .link-card:active { transform: scale(.97); }
+
+        .card-ig { border-color: rgba(236,72,153,.12); }
+        .card-ig:active { border-color: rgba(236,72,153,.45); background: rgba(236,72,153,.06); }
+        .card-tg { border-color: rgba(14,165,233,.12); }
+        .card-tg:active { border-color: rgba(14,165,233,.45); background: rgba(14,165,233,.06); }
+        .card-wa { border-color: rgba(34,197,94,.12); }
+        .card-wa:active { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.06); }
+        .card-fb { border-color: rgba(59,130,246,.12); }
+        .card-fb:active { border-color: rgba(59,130,246,.45); background: rgba(59,130,246,.06); }
+
+        .card-icon-wrap {
+            width: 46px; height: 46px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 22px;
         }
-
-        #admin-panel {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.98);
-            z-index: 1000;
-            padding: 2rem;
-            overflow-y: auto;
+        .card-text { flex: 1; text-align: right; }
+        .card-title { font-size: 16px; font-weight: 700; color: #f1f5f9; display: block; margin-bottom: 2px; }
+        .card-sub {
+            font-size: 9px; font-weight: 700; color: #334155;
+            text-transform: uppercase; letter-spacing: 2px;
+            font-family: 'Rajdhani', sans-serif;
         }
+        .card-arrow { font-size: 11px; color: #1e293b; }
 
-        input {
-            background: #000 !important;
-            border: 1px solid #222 !important;
-            color: white !important;
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            outline: none;
+        /* ── FOOTER ── */
+        .footer {
+            margin-top: 60px; text-align: center; padding-bottom: 40px;
+            opacity: 0; animation: fadeUp .6s ease .5s forwards;
         }
+        .footer p:nth-child(1) { font-size: 8px; font-weight: 700; color: #1e293b; text-transform: uppercase; letter-spacing: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 6px; }
+        .footer p:nth-child(2) { font-size: 14px; font-weight: 700; color: #334155; }
+        .footer p:nth-child(3) { font-size: 8px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 4px; font-family: 'Rajdhani', sans-serif; margin-top: 20px; }
 
-        .toast {
-            position: fixed;
-            top: 25px;
-            background: #3b82f6;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: bold;
-            display: none;
-            z-index: 2000;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="p-6">
+<body>
 
-    <div id="toast" class="toast text-sm">تم التحديث بنجاح</div>
+<canvas id="bg-canvas"></canvas>
 
-    <div class="w-full max-w-md mt-16 text-center">
-        <h1 id="v-name" class="text-3xl font-bold tracking-tight mb-4 select-none active:opacity-40">أمير كاظم الشبلاوي</h1>
-        <div class="h-[2px] w-12 bg-blue-600 mx-auto rounded-full mb-8"></div>
-        <p id="v-bio" class="text-zinc-500 text-xs font-medium mb-12 tracking-widest uppercase">Official Links • 2026</p>
+<div class="wrap">
 
-        <div id="links-container" class="space-y-1">
-            
-            <a id="h-ig" href="#" target="_blank" class="link-card">
-                <div class="w-12 h-12 bg-pink-500/10 rounded-2xl flex items-center justify-center ml-4">
-                    <i class="fab fa-instagram text-pink-500 text-2xl"></i>
-                </div>
-                <div class="flex-1 text-right">
-                    <span class="block font-bold text-lg">إنستغرام</span>
-                    <span class="text-[10px] text-zinc-600 uppercase tracking-widest">Follow me</span>
-                </div>
-                <i class="fas fa-chevron-left text-zinc-900 text-xs"></i>
-            </a>
-
-            <a id="h-tg" href="#" target="_blank" class="link-card">
-                <div class="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center ml-4">
-                    <i class="fab fa-telegram-plane text-sky-400 text-2xl"></i>
-                </div>
-                <div class="flex-1 text-right">
-                    <span class="block font-bold text-lg">تيليجرام</span>
-                    <span class="text-[10px] text-zinc-600 uppercase tracking-widest">Message me</span>
-                </div>
-                <i class="fas fa-chevron-left text-zinc-900 text-xs"></i>
-            </a>
-
-            <a id="h-wa" href="#" target="_blank" class="link-card">
-                <div class="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center ml-4">
-                    <i class="fab fa-whatsapp text-green-500 text-2xl"></i>
-                </div>
-                <div class="flex-1 text-right">
-                    <span class="block font-bold text-lg">واتساب</span>
-                    <span class="text-[10px] text-zinc-600 uppercase tracking-widest">Chat now</span>
-                </div>
-                <i class="fas fa-chevron-left text-zinc-900 text-xs"></i>
-            </a>
-
-            <a id="h-fb" href="#" target="_blank" class="link-card">
-                <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center ml-4">
-                    <i class="fab fa-facebook text-blue-600 text-2xl"></i>
-                </div>
-                <div class="flex-1 text-right">
-                    <span class="block font-bold text-lg">فيسبوك</span>
-                    <span class="text-[10px] text-zinc-600 uppercase tracking-widest">Profile</span>
-                </div>
-                <i class="fas fa-chevron-left text-zinc-900 text-xs"></i>
-            </a>
-
-        </div>
-
-        <footer class="mt-auto pt-24 pb-12 text-center">
-            <p class="text-[9px] text-zinc-700 tracking-[0.5em] uppercase mb-2">Developed By</p>
-            <p class="text-zinc-500 font-bold text-base tracking-tight">Amir Kadhim Al-Shiblawi</p>
-            <p class="text-[8px] text-zinc-800 mt-6 tracking-widest uppercase font-medium">Rights Reserved &copy; 2026</p>
-        </footer>
-    </div>
-
-    <div id="admin-panel">
-        <div class="max-w-sm mx-auto mt-10">
-            <h2 class="text-2xl font-bold mb-8 text-blue-500 text-center">Cloud Admin</h2>
-            <div class="space-y-4">
-                <input type="text" id="i-name" placeholder="الاسم">
-                <input type="text" id="i-bio" placeholder="الوصف">
-                <input type="text" id="i-ig" placeholder="يوزر إنستغرام">
-                <input type="text" id="i-tg" placeholder="يوزر تيليجرام">
-                <input type="text" id="i-wa" placeholder="رقم واتساب">
-                <input type="text" id="i-fb" placeholder="رابط فيسبوك">
-            </div>
-            <div class="flex gap-4 mt-10">
-                <button onclick="saveToCloud()" class="flex-1 bg-blue-600 py-4 rounded-xl font-bold">حفظ سحابياً</button>
-                <button onclick="document.getElementById('admin-panel').style.display='none'" class="px-8 bg-zinc-900 rounded-xl text-sm font-bold">إغلاق</button>
+    <div class="header">
+        <div class="avatar-wrap">
+            <div class="avatar-ring"></div>
+            <div class="avatar-inner">
+                <i class="fa-solid fa-user"></i>
             </div>
         </div>
+        <h1 class="name">أمير كاظم الشبلاوي</h1>
+        <div class="gold-line"></div>
+        <p class="bio">الروابط الرسمية ووسائل التواصل • 2026</p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    <div class="section-label"><span>Social Links</span></div>
 
-        const MY_SECRET = "2026";
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'amir-final-2026';
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profile');
+    <div class="links">
 
-        let data = {};
+        <a href="https://instagram.com/amop2_6" target="_blank" class="link-card card-ig">
+            <div class="card-icon-wrap" style="background:rgba(236,72,153,.1)">
+                <i class="fab fa-instagram" style="color:#ec4899"></i>
+            </div>
+            <div class="card-text">
+                <span class="card-title">إنستغرام</span>
+                <span class="card-sub">Follow me</span>
+            </div>
+            <i class="fas fa-chevron-left card-arrow"></i>
+        </a>
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const snap = await getDoc(docRef);
-                if (snap.exists()) {
-                    data = snap.data();
-                } else {
-                    data = {
-                        name: "أمير كاظم الشبلاوي",
-                        bio: "الروابط الرسمية ووسائل التواصل • 2026",
-                        ig: "amop2_6",
-                        tg: "amop2_6",
-                        wa: "9647866941196",
-                        fb: "https://www.facebook.com/share/17VhtYKEka/"
-                    };
-                }
-                render();
-            } else { signInAnonymously(auth); }
+        <a href="https://t.me/amop2_6" target="_blank" class="link-card card-tg">
+            <div class="card-icon-wrap" style="background:rgba(14,165,233,.1)">
+                <i class="fab fa-telegram-plane" style="color:#38bdf8"></i>
+            </div>
+            <div class="card-text">
+                <span class="card-title">تيليجرام</span>
+                <span class="card-sub">Message me</span>
+            </div>
+            <i class="fas fa-chevron-left card-arrow"></i>
+        </a>
+
+        <a href="https://wa.me/9647866941196" target="_blank" class="link-card card-wa">
+            <div class="card-icon-wrap" style="background:rgba(34,197,94,.1)">
+                <i class="fab fa-whatsapp" style="color:#4ade80"></i>
+            </div>
+            <div class="card-text">
+                <span class="card-title">واتساب</span>
+                <span class="card-sub">Chat now</span>
+            </div>
+            <i class="fas fa-chevron-left card-arrow"></i>
+        </a>
+
+        <a href="https://www.facebook.com/share/17VhtYKEka/" target="_blank" class="link-card card-fb">
+            <div class="card-icon-wrap" style="background:rgba(59,130,246,.1)">
+                <i class="fab fa-facebook" style="color:#60a5fa"></i>
+            </div>
+            <div class="card-text">
+                <span class="card-title">فيسبوك</span>
+                <span class="card-sub">Profile</span>
+            </div>
+            <i class="fas fa-chevron-left card-arrow"></i>
+        </a>
+
+    </div>
+
+    <footer class="footer">
+        <p>Developed By</p>
+        <p>Amir Kadhim Al-Shiblawi</p>
+        <p>Rights Reserved &copy; 2026</p>
+    </footer>
+
+</div>
+
+<script>
+(function() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 55; i++) {
+        particles.push({
+            x: Math.random() * W, y: Math.random() * H,
+            r: Math.random() * 1.2 + .3,
+            vx: (Math.random() - .5) * .25,
+            vy: (Math.random() - .5) * .25,
+            a: Math.random() * .4 + .08,
+            gold: Math.random() > .6,
         });
+    }
 
-        function render() {
-            document.getElementById('v-name').innerText = data.name;
-            document.getElementById('v-bio').innerText = data.bio;
-            document.getElementById('h-ig').href = `https://instagram.com/${data.ig.replace('@','')}`;
-            document.getElementById('h-tg').href = `https://t.me/${data.tg.replace('@','')}`;
-            document.getElementById('h-wa').href = `https://wa.me/${data.wa}`;
-            document.getElementById('h-fb').href = data.fb;
-        }
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
 
-        let timer;
-        const nameNode = document.getElementById('v-name');
-        const startTimer = () => timer = setTimeout(openAdmin, 2000);
-        const clearTimer = () => clearTimeout(timer);
-        nameNode.addEventListener('touchstart', startTimer);
-        nameNode.addEventListener('touchend', clearTimer);
-        nameNode.addEventListener('mousedown', startTimer);
-        nameNode.addEventListener('mouseup', clearTimer);
+        // توهج مركزي
+        const grd = ctx.createRadialGradient(W/2, H*.3, 0, W/2, H*.3, W*.55);
+        grd.addColorStop(0, 'rgba(15,100,80,.18)');
+        grd.addColorStop(.5, 'rgba(15,50,80,.08)');
+        grd.addColorStop(1, 'transparent');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, W, H);
 
-        function openAdmin() {
-            const pass = prompt("رمز الإدارة (2026):");
-            if (pass === MY_SECRET) {
-                document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('i-name').value = data.name;
-                document.getElementById('i-bio').value = data.bio;
-                document.getElementById('i-ig').value = data.ig;
-                document.getElementById('i-tg').value = data.tg;
-                document.getElementById('i-wa').value = data.wa;
-                document.getElementById('i-fb').value = data.fb;
-            } else if (pass !== null) { alert("رمز خطأ!"); }
-        }
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = p.gold
+                ? `rgba(201,168,76,${p.a})`
+                : `rgba(15,180,137,${p.a * .6})`;
+            ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
+</script>
 
-        window.saveToCloud = async () => {
-            const up = {
-                name: document.getElementById('i-name').value,
-                bio: document.getElementById('i-bio').value,
-                ig: document.getElementById('i-ig').value,
-                tg: document.getElementById('i-tg').value,
-                wa: document.getElementById('i-wa').value,
-                fb: document.getElementById('i-fb').value
-            };
-            await setDoc(docRef, up);
-            data = up;
-            render();
-            document.getElementById('admin-panel').style.display = 'none';
-            const t = document.getElementById('toast');
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
-        };
-    </script>
 </body>
 </html>
-
-
