@@ -7,6 +7,8 @@
 <title>VIP Link-in-Bio</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--gold:#c9a84c;--bright:#f1d38e;--dark:#050505;--card:#0c0c0c;--border:rgba(201,168,76,0.2)}
@@ -50,9 +52,15 @@ input[dir=ltr]{direction:ltr}
 .client-avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--border);background:#111;display:flex;align-items:center;justify-content:center}
 .client-actions{display:flex;gap:8px}
 .admin-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #111;padding-bottom:20px;margin-bottom:20px}
+.photo-row{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.photo-thumb{width:58px;height:58px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#111;display:flex;align-items:center;justify-content:center}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
 .del-confirm{margin-top:12px;background:rgba(229,85,85,.06);border:1px solid rgba(229,85,85,.2);border-radius:12px;padding:14px;text-align:center}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0}
 label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:right}
+.photo-row{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+.photo-thumb{width:58px;height:58px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#111;display:flex;align-items:center;justify-content:center}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
 #preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:999;align-items:center;justify-content:center}
 #preview-modal.open{display:flex}
 #preview-inner{width:340px;border-radius:24px;overflow:hidden;border:1px solid var(--border);max-height:90vh;overflow-y:auto}
@@ -138,8 +146,20 @@ label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:r
         <div><label class="lbl">🎵 تيك توك</label><input type="text" id="f-tt" placeholder="@username" dir="ltr"></div>
         <div><label class="lbl">🎮 PUBG</label><input type="text" id="f-pubg" placeholder="رابط PUBG" dir="ltr"></div>
       </div>
+      <label class="lbl">🖼️ صورة شخصية (اختياري)</label>
+      <div class="photo-row">
+        <div class="photo-thumb" id="photo-thumb-wrap" style="border:2px dashed #2a2a2a">
+          <i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>
+        </div>
+        <div style="flex:1">
+          <input type="file" id="f-photo-input" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+          <button class="btn-gray" id="photo-btn" onclick="document.getElementById('f-photo-input').click()">رفع صورة 📤</button>
+          <button id="photo-remove-btn" onclick="removePhoto()" style="background:none;border:none;color:#e55;font-size:11px;cursor:pointer;margin-top:4px;width:100%;font-family:'Tajawal',sans-serif;display:none">حذف الصورة ✕</button>
+        </div>
+      </div>
+      <input type="hidden" id="f-photo">
       <input type="hidden" id="f-edit-id">
-      <div style="display:flex;gap:10px;margin-top:16px">
+      <div style="display:flex;gap:10px">
         <div style="flex:1"><button class="btn-gold" onclick="saveClient()">💾 حفظ</button></div>
         <div style="flex:1"><button class="btn-gray" onclick="cancelForm()">إلغاء</button></div>
       </div>
@@ -152,46 +172,52 @@ label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:r
 </div>
 
 <script>
+// ── Firebase ────────────────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:            "AIzaSyCv4V2hfF_I8nPzo1KbMRXypHSf-kiE4FU",
+  authDomain:        "my-work-38400.firebaseapp.com",
+  projectId:         "my-work-38400",
+  storageBucket:     "my-work-38400.firebasestorage.app",
+  messagingSenderId: "883484546361",
+  appId:             "1:883484546361:web:88b5758e29aeaf995884e8"
+});
+var db  = firebase.firestore();
+var COL = "clients";
+
 // ── Config ──────────────────────────────────────────────────────────────────────
-var PASS = "ADMIN2026"; // ← غيّر كلمة السر هنا
-var KEY  = "vip_v5";
-var BASE = window.location.origin + window.location.pathname;
+var PASS  = "ADMIN2026"; // ← غيّر كلمة السر هنا
+var BASE  = window.location.origin + window.location.pathname;
+var CACHE = [];
 
-// ── Storage ─────────────────────────────────────────────────────────────────────
-function load() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { return []; }
-}
-function save(arr) {
-  localStorage.setItem(KEY, JSON.stringify(arr));
-}
-
-// ── Encode/Decode URL-safe بدون صورة — رابط قصير ───────────────────────────────
-function encode(c) {
-  var obj = {
-    a: c.nameAr||"", e: c.nameEn||"", b: c.bio||"",
-    w: c.wa||"",     i: c.ig||"",     t: c.tg||"",
-    f: c.fb||"",     k: c.tt||"",     p: c.pubg||""
-  };
-  try {
-    var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
-    // URL-safe: شيل الرموز اللي تكسر الرابط
-    return b64.replace(/\+/g,"-").replace(/\//g,"_").replace(/=/g,"");
-  } catch(x) { return ""; }
+// ── Firestore ───────────────────────────────────────────────────────────────────
+function dbGetAll() {
+  return db.collection(COL).orderBy("ts","asc").get()
+    .then(function(snap) {
+      CACHE = snap.docs.map(function(d) { return d.data(); });
+      return CACHE;
+    })
+    .catch(function() { CACHE = []; return []; });
 }
 
-function decode(str) {
-  try {
-    // رجّع الرموز الأصلية
-    var b64 = str.replace(/-/g,"+").replace(/_/g,"/");
-    // أضف padding
-    while (b64.length % 4) b64 += "=";
-    var obj = JSON.parse(decodeURIComponent(escape(atob(b64))));
-    return {
-      nameAr: obj.a||"", nameEn: obj.e||"", bio: obj.b||"",
-      wa: obj.w||"",     ig: obj.i||"",     tg: obj.t||"",
-      fb: obj.f||"",     tt: obj.k||"",     pubg: obj.p||""
-    };
-  } catch(e) { return null; }
+function dbSave(obj) {
+  return db.collection(COL).doc(obj.id).set(obj)
+    .then(function() {
+      var i = CACHE.findIndex(function(c) { return c.id === obj.id; });
+      if (i >= 0) CACHE[i] = obj; else CACHE.push(obj);
+    });
+}
+
+function dbDelete(id) {
+  return db.collection(COL).doc(id).delete()
+    .then(function() {
+      CACHE = CACHE.filter(function(c) { return c.id !== id; });
+    });
+}
+
+function dbFindSlug(slug) {
+  return db.collection(COL).where("slug","==",slug).limit(1).get()
+    .then(function(snap) { return snap.empty ? null : snap.docs[0].data(); })
+    .catch(function() { return null; });
 }
 
 // ── Router ──────────────────────────────────────────────────────────────────────
@@ -205,10 +231,14 @@ function show(id) {
 function route() {
   var h = window.location.hash;
   if (h.startsWith("#/u/")) {
-    var data = h.slice(4);
-    var c = decode(data);
-    if (c && c.nameAr) { show("view-profile"); renderProfile(c, document.getElementById("view-profile")); }
-    else show("view-404");
+    var slug = h.slice(4);
+    show("view-profile");
+    document.getElementById("view-profile").innerHTML =
+      '<div style="margin:auto;padding-top:42vh;color:var(--gold);font-size:40px">⏳</div>';
+    dbFindSlug(slug).then(function(c) {
+      if (c) renderProfile(c, document.getElementById("view-profile"));
+      else show("view-404");
+    });
     return;
   }
   if (h === "#/admin") {
@@ -253,15 +283,15 @@ function renderProfile(c, el) {
     stars += '<div class="star" style="left:'+x+'%;top:'+y+'%;width:'+s+'px;height:'+s+'px;animation-delay:'+d+'s"></div>';
   }
 
-  var bio     = c.bio ? '<p class="p-bio">'+c.bio+'</p>' : "";
+  var photo   = c.photo ? '<img src="'+c.photo+'" alt="">' : '<i class="fa-solid fa-user"></i>';
+  var bio     = c.bio   ? '<p class="p-bio">'+c.bio+'</p>' : "";
   var socials = links.map(function(l) {
     return '<a href="'+l.url+'" target="_blank" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
   }).join("");
 
   el.innerHTML =
     stars +
-    '<div class="avatar-wrap"><div class="ring"></div><div class="ring-gap"></div>' +
-    '<div class="avatar-inner"><i class="fa-solid fa-user"></i></div></div>' +
+    '<div class="avatar-wrap"><div class="ring"></div><div class="ring-gap"></div><div class="avatar-inner">'+photo+'</div></div>' +
     '<h1 class="p-name-ar">'+c.nameAr+'</h1>' +
     '<h2 class="p-name-en">'+c.nameEn+'</h2>' +
     '<p class="p-tag">Link-in-bio</p>' +
@@ -271,7 +301,7 @@ function renderProfile(c, el) {
 
 // ── Preview Modal ────────────────────────────────────────────────────────────────
 function openPreview(id) {
-  var c = load().find(function(x) { return x.id === id; });
+  var c = CACHE.find(function(x) { return x.id === id; });
   if (!c) return;
   renderProfile(c, document.getElementById("preview-profile-wrap"));
   document.getElementById("preview-modal").classList.add("open");
@@ -282,57 +312,62 @@ function closePreview() {
 
 // ── Admin List ───────────────────────────────────────────────────────────────────
 function renderList() {
-  var all  = load();
-  var q    = (document.getElementById("search-input") || {value:""}).value;
-  var list = q ? all.filter(function(c) {
-    return c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q);
-  }) : all;
+  dbGetAll().then(function(all) {
+    var q = (document.getElementById("search-input") || {value:""}).value;
+    var list = q ? all.filter(function(c) {
+      return c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q);
+    }) : all;
 
-  document.getElementById("clients-count").textContent = all.length + " زبون مسجل";
-  document.getElementById("search-box").style.display  = all.length ? "block" : "none";
+    document.getElementById("clients-count").textContent = all.length + " زبون مسجل";
+    document.getElementById("search-box").style.display  = all.length ? "block" : "none";
 
-  var el = document.getElementById("clients-list");
-  el.innerHTML = "";
+    var el = document.getElementById("clients-list");
+    el.innerHTML = "";
 
-  if (!list.length) { document.getElementById("empty-msg").style.display = "block"; return; }
-  document.getElementById("empty-msg").style.display = "none";
+    if (!list.length) { document.getElementById("empty-msg").style.display = "block"; return; }
+    document.getElementById("empty-msg").style.display = "none";
 
-  list.forEach(function(c) {
-    var url = BASE + "#/u/" + encode(c);
-    var div = document.createElement("div");
-    div.className = "client-card";
-    div.innerHTML =
-      '<div class="client-top">' +
-        '<div class="client-avatar"><i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i></div>' +
-        '<div style="flex:1;min-width:0">' +
-          '<p style="color:#fff;font-weight:700;font-size:15px;margin-bottom:2px">'+c.nameAr+'</p>' +
-          '<p style="color:#555;font-size:12px">'+c.nameEn+'</p>' +
+    list.forEach(function(c) {
+      var url = BASE + "#/u/" + c.slug;
+      var av  = c.photo
+        ? '<img src="'+c.photo+'" style="width:100%;height:100%;object-fit:cover">'
+        : '<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>';
+
+      var div = document.createElement("div");
+      div.className = "client-card";
+      div.innerHTML =
+        '<div class="client-top">' +
+          '<div class="client-avatar">'+av+'</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<p style="color:#fff;font-weight:700;font-size:15px;margin-bottom:2px">'+c.nameAr+'</p>' +
+            '<p style="color:#555;font-size:12px">'+c.nameEn+'</p>' +
+          '</div>' +
+          '<button class="btn-sm bp" style="color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)">👁️ معاينة</button>' +
         '</div>' +
-        '<button class="btn-sm bp" style="color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)">👁️ معاينة</button>' +
-      '</div>' +
-      '<div class="link-box"><p>رابط الزبون — أرسله له مباشرة 🔗</p><code>'+url+'</code></div>' +
-      '<div class="client-actions">' +
-        '<button class="btn-sm bc" style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)">📋 نسخ الرابط</button>' +
-        '<button class="btn-sm be" style="flex:1;color:#aaa;border-color:#2a2a2a;background:#111">✏️ تعديل</button>' +
-        '<button class="btn-sm bd" style="flex:1;color:#e55;border-color:rgba(229,85,85,.2);background:rgba(229,85,85,.06)">🗑️</button>' +
-      '</div>' +
-      '<div class="del-confirm dc" style="display:none">' +
-        '<p style="color:#e55;margin-bottom:12px;font-size:13px">حذف <strong>'+c.nameAr+'</strong>؟</p>' +
-        '<div style="display:flex;gap:8px">' +
-          '<button class="by" style="flex:1;background:#e55;border:none;border-radius:9px;padding:10px;color:#fff;font-weight:700;cursor:pointer;font-family:Tajawal,sans-serif">نعم، احذف</button>' +
-          '<button class="bn" style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;padding:10px;color:#aaa;cursor:pointer;font-family:Tajawal,sans-serif">إلغاء</button>' +
+        '<div class="link-box"><p>رابط الزبون — أرسله له مباشرة 🔗</p><code>'+url+'</code></div>' +
+        '<div class="client-actions">' +
+          '<button class="btn-sm bc" style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)">📋 نسخ الرابط</button>' +
+          '<button class="btn-sm be" style="flex:1;color:#aaa;border-color:#2a2a2a;background:#111">✏️ تعديل</button>' +
+          '<button class="btn-sm bd" style="flex:1;color:#e55;border-color:rgba(229,85,85,.2);background:rgba(229,85,85,.06)">🗑️</button>' +
         '</div>' +
-      '</div>';
+        '<div class="del-confirm dc" style="display:none">' +
+          '<p style="color:#e55;margin-bottom:12px;font-size:13px">حذف <strong>'+c.nameAr+'</strong>؟</p>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="by" style="flex:1;background:#e55;border:none;border-radius:9px;padding:10px;color:#fff;font-weight:700;cursor:pointer;font-family:Tajawal,sans-serif">نعم، احذف</button>' +
+            '<button class="bn" style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;padding:10px;color:#aaa;cursor:pointer;font-family:Tajawal,sans-serif">إلغاء</button>' +
+          '</div>' +
+        '</div>';
 
-    var conf = div.querySelector(".dc");
-    div.querySelector(".bp").onclick = function() { openPreview(c.id); };
-    div.querySelector(".bc").onclick = function() { copyUrl(url, div.querySelector(".bc")); };
-    div.querySelector(".be").onclick = function() { editClient(c.id); };
-    div.querySelector(".bd").onclick = function() { conf.style.display = "block"; };
-    div.querySelector(".by").onclick = function() { save(load().filter(function(x){return x.id!==c.id;})); renderList(); };
-    div.querySelector(".bn").onclick = function() { conf.style.display = "none"; };
+      var conf = div.querySelector(".dc");
+      div.querySelector(".bp").onclick = function() { openPreview(c.id); };
+      div.querySelector(".bc").onclick = function() { copyUrl(url, div.querySelector(".bc")); };
+      div.querySelector(".be").onclick = function() { editClient(c.id); };
+      div.querySelector(".bd").onclick = function() { conf.style.display = "block"; };
+      div.querySelector(".by").onclick = function() { dbDelete(c.id).then(renderList); };
+      div.querySelector(".bn").onclick = function() { conf.style.display = "none"; };
 
-    el.appendChild(div);
+      el.appendChild(div);
+    });
   });
 }
 
@@ -368,10 +403,10 @@ function showAddForm() {
 }
 
 function editClient(id) {
-  var c = load().find(function(x){return x.id===id;});
+  var c = CACHE.find(function(x){return x.id===id;});
   if (!c) return;
   clearForm();
-  document.getElementById("form-title").textContent  = "✏️ تعديل الزبون";
+  document.getElementById("form-title").textContent = "✏️ تعديل الزبون";
   document.getElementById("f-edit-id").value = id;
   document.getElementById("f-nameAr").value  = c.nameAr||"";
   document.getElementById("f-nameEn").value  = c.nameEn||"";
@@ -383,6 +418,8 @@ function editClient(id) {
   document.getElementById("f-fb").value      = c.fb||"";
   document.getElementById("f-tt").value      = c.tt||"";
   document.getElementById("f-pubg").value    = c.pubg||"";
+  if (c.photo) setPhotoPreview(c.photo);
+  if (c.photo) setPhotoPreview(c.photo);
   updateSlugPreview();
   document.getElementById("client-form").style.display = "block";
   document.getElementById("client-form").scrollIntoView({behavior:"smooth"});
@@ -395,66 +432,152 @@ function cancelForm() {
 
 function clearForm() {
   ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg"].forEach(function(id){
-    document.getElementById(id).value = "";
+    document.getElementById(id).value="";
   });
-  document.getElementById("f-edit-id").value = "";
+  document.getElementById("f-photo").value       = "";
+  document.getElementById("f-edit-id").value     = "";
+  document.getElementById("f-photo").value        = "";
+  document.getElementById("f-photo-input").value  = "";
   document.getElementById("slug-preview").style.display = "none";
   document.getElementById("slug-err").style.display     = "none";
+  var w=document.getElementById("photo-thumb-wrap");
+  w.innerHTML='<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>';
+  w.style.border="2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent="رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display="none";
 }
 
 function saveClient() {
-  var nameAr = document.getElementById("f-nameAr").value.trim();
-  var nameEn = document.getElementById("f-nameEn").value.trim();
-  var slug   = document.getElementById("f-slug").value.trim().toLowerCase();
-  var bio    = document.getElementById("f-bio").value.trim();
-  var wa     = document.getElementById("f-wa").value.trim();
-  var ig     = document.getElementById("f-ig").value.trim();
-  var tg     = document.getElementById("f-tg").value.trim();
-  var fb     = document.getElementById("f-fb").value.trim();
-  var tt     = document.getElementById("f-tt").value.trim();
-  var pubg   = document.getElementById("f-pubg").value.trim();
-  var editId = document.getElementById("f-edit-id").value;
+  var nameAr=document.getElementById("f-nameAr").value.trim();
+  var nameEn=document.getElementById("f-nameEn").value.trim();
+  var slug  =document.getElementById("f-slug").value.trim().toLowerCase();
+  var bio   =document.getElementById("f-bio").value.trim();
+  var wa    =document.getElementById("f-wa").value.trim();
+  var ig    =document.getElementById("f-ig").value.trim();
+  var tg    =document.getElementById("f-tg").value.trim();
+  var fb    =document.getElementById("f-fb").value.trim();
+  var tt    =document.getElementById("f-tt").value.trim();
+  var pubg  =document.getElementById("f-pubg").value.trim();
+  var photo =document.getElementById("f-photo").value;
+  var editId=document.getElementById("f-edit-id").value;
 
-  if (!nameAr) { alert("اكتب الاسم بالعربي"); return; }
-  if (!slug)   { showSlugErr("الرابط مطلوب"); return; }
+  if (!slug) { showSlugErr("الرابط مطلوب"); return; }
   if (!/^[a-z0-9_-]+$/.test(slug)) { showSlugErr("أحرف إنكليزية صغيرة وأرقام فقط"); return; }
-  document.getElementById("slug-err").style.display = "none";
+  document.getElementById("slug-err").style.display="none";
 
-  var all = load();
-  if (all.find(function(c){return c.slug===slug && c.id!==editId;})) {
+  if (CACHE.find(function(c){return c.slug===slug && c.id!==editId;})) {
     showSlugErr("هذا الرابط موجود مسبقاً، اختر رابطاً آخر"); return;
   }
 
+  var old = editId ? (CACHE.find(function(c){return c.id===editId;})||{}) : {};
+  var photo = document.getElementById("f-photo").value;
+
   var obj = {
     id:     editId || Date.now().toString(),
-    ts:     Date.now(),
-    nameAr: nameAr, nameEn: nameEn, slug: slug, bio: bio,
-    wa: wa, ig: ig, tg: tg, fb: fb, tt: tt, pubg: pubg
+    ts:     old.ts || Date.now(),
+    nameAr:nameAr, nameEn:nameEn, slug:slug, bio:bio,
+    wa:wa, ig:ig, tg:tg, fb:fb, tt:tt, pubg:pubg, photo:photo
   };
 
-  if (editId) {
-    all = all.map(function(c){ return c.id===editId ? obj : c; });
-  } else {
-    all.push(obj);
-  }
-
-  save(all);
-  cancelForm();
-  renderList();
-  showToast(editId ? "✅ تم التعديل!" : "✅ تمت الإضافة!");
+  dbSave(obj).then(function() {
+    cancelForm();
+    renderList();
+    showToast(editId ? "✅ تم التعديل!" : "✅ تمت الإضافة!");
+  }).catch(function(err) {
+    showToast("❌ خطأ في الحفظ — جرب بدون صورة");
+    console.error(err);
+  });
 }
 
 function showSlugErr(msg) {
   var el=document.getElementById("slug-err"); el.textContent=msg; el.style.display="block";
 }
 
+// ── Photo ────────────────────────────────────────────────────────────────────────
+function handlePhoto(e) {
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement("canvas");
+      var MAX=300;
+      var w=img.width, h=img.height;
+      if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+      else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      setPhotoPreview(canvas.toDataURL("image/jpeg",0.6));
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+function setPhotoPreview(src) {
+  document.getElementById("f-photo").value=src;
+  var w=document.getElementById("photo-thumb-wrap");
+  w.style.border="2px solid var(--gold)";
+  w.innerHTML='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover">';
+  document.getElementById("photo-btn").textContent="تغيير الصورة 🔄";
+  document.getElementById("photo-remove-btn").style.display="block";
+}
+function removePhoto() {
+  document.getElementById("f-photo").value="";
+  document.getElementById("f-photo-input").value="";
+  var w=document.getElementById("photo-thumb-wrap");
+  w.innerHTML='<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>';
+  w.style.border="2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent="رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display="none";
+}
+
 function updateSlugPreview() {
   var slug=document.getElementById("f-slug").value.trim().toLowerCase();
   var prev=document.getElementById("slug-preview");
   if (slug) {
-    document.getElementById("slug-preview-text").textContent = BASE+"#/u/...";
+    document.getElementById("slug-preview-text").textContent = BASE+"#/u/"+slug;
     prev.style.display="block";
   } else { prev.style.display="none"; }
+}
+
+// ── Photo ────────────────────────────────────────────────────────────────────────
+function handlePhoto(e) {
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    // ضغط الصورة قبل الحفظ
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement("canvas");
+      var MAX=400;
+      var w=img.width, h=img.height;
+      if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+      else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      var compressed=canvas.toDataURL("image/jpeg",0.7);
+      setPhotoPreview(compressed);
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+function setPhotoPreview(src) {
+  document.getElementById("f-photo").value=src;
+  var w=document.getElementById("photo-thumb-wrap");
+  w.style.border="2px solid var(--gold)";
+  w.innerHTML='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover">';
+  document.getElementById("photo-btn").textContent="تغيير الصورة 🔄";
+  document.getElementById("photo-remove-btn").style.display="block";
+}
+function removePhoto() {
+  document.getElementById("f-photo").value="";
+  document.getElementById("f-photo-input").value="";
+  var w=document.getElementById("photo-thumb-wrap");
+  w.innerHTML='<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>';
+  w.style.border="2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent="رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display="none";
 }
 </script>
 </body>
