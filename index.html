@@ -404,7 +404,7 @@ window.addEventListener("DOMContentLoaded", route);
 // ── Auth ───────────────────────────────────────────────────────────────────────
 function goAdmin() { window.location.hash = "#/admin"; }
 
-function checkPw() {
+async function checkPw() {
   const v = document.getElementById("pw-input").value;
   if (v === SUPER_PASS) {
     sessionStorage.setItem("admin_ok","1");
