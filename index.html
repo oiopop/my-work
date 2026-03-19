@@ -271,6 +271,10 @@ label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:r
           <input type="text" id="f-tg" placeholder="@username" dir="ltr"></div>
         <div><label class="lbl">👤 فيسبوك</label>
           <input type="text" id="f-fb" placeholder="رابط الصفحة" dir="ltr"></div>
+        <div><label class="lbl">🎵 تيك توك</label>
+          <input type="text" id="f-tt" placeholder="@username" dir="ltr"></div>
+        <div><label class="lbl">🎮 PUBG</label>
+          <input type="text" id="f-pubg" placeholder="رابط PUBG" dir="ltr"></div>
       </div>
 
       <label class="lbl">🖼️ صورة شخصية (اختياري)</label>
@@ -381,10 +385,12 @@ function checkPw() {
 // ── Profile Renderer ───────────────────────────────────────────────────────────
 function renderProfile(c, container) {
   const socials = [
-    {key:"wa", cls:"fab fa-whatsapp",      href: c.wa ? `https://wa.me/${c.wa}` : null},
-    {key:"ig", cls:"fab fa-instagram",      href: c.ig ? `https://instagram.com/${c.ig.replace("@","")}` : null},
-    {key:"tg", cls:"fab fa-telegram-plane", href: c.tg ? `https://t.me/${c.tg.replace("@","")}` : null},
-    {key:"fb", cls:"fab fa-facebook-f",     href: c.fb || null},
+    {key:"wa",   cls:"fab fa-whatsapp",      href: c.wa   ? `https://wa.me/${c.wa}` : null},
+    {key:"ig",   cls:"fab fa-instagram",      href: c.ig   ? `https://instagram.com/${c.ig.replace("@","")}` : null},
+    {key:"tg",   cls:"fab fa-telegram-plane", href: c.tg   ? `https://t.me/${c.tg.replace("@","")}` : null},
+    {key:"fb",   cls:"fab fa-facebook-f",     href: c.fb   || null},
+    {key:"tt",   cls:"fab fa-tiktok",         href: c.tt   ? `https://www.tiktok.com/@${c.tt.replace("@","")}` : null},
+    {key:"pubg", cls:"fas fa-gamepad",        href: c.pubg || null},
   ].filter(s=>s.href);
 
   // نجوم عشوائية
@@ -551,6 +557,8 @@ function editClient(id) {
   document.getElementById("f-ig").value     = c.ig||"";
   document.getElementById("f-tg").value     = c.tg||"";
   document.getElementById("f-fb").value     = c.fb||"";
+  document.getElementById("f-tt").value     = c.tt||"";
+  document.getElementById("f-pubg").value   = c.pubg||"";
   if(c.photo) setPhotoPreview(c.photo);
   updateSlugPreview();
   document.getElementById("client-form").style.display = "block";
@@ -563,7 +571,7 @@ function cancelForm() {
 }
 
 function clearForm() {
-  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb"].forEach(id=>{
+  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg"].forEach(id=>{
     document.getElementById(id).value="";
   });
   document.getElementById("f-photo").value="";
@@ -587,6 +595,8 @@ function saveClient() {
   const ig     = document.getElementById("f-ig").value.trim();
   const tg     = document.getElementById("f-tg").value.trim();
   const fb     = document.getElementById("f-fb").value.trim();
+  const tt     = document.getElementById("f-tt").value.trim();
+  const pubg   = document.getElementById("f-pubg").value.trim();
   const photo  = document.getElementById("f-photo").value;
   const editId = document.getElementById("f-edit-id").value;
 
@@ -603,9 +613,9 @@ function saveClient() {
   }
 
   if(editId) {
-    clients = clients.map(c=>c.id===editId?{...c,nameAr,nameEn,slug,bio,wa,ig,tg,fb,photo}:c);
+    clients = clients.map(c=>c.id===editId?{...c,nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo}:c);
   } else {
-    clients.push({id:Date.now().toString(),nameAr,nameEn,slug,bio,wa,ig,tg,fb,photo});
+    clients.push({id:Date.now().toString(),nameAr,nameEn,slug,bio,wa,ig,tg,fb,tt,pubg,photo});
   }
 
   saveClients(clients);
