@@ -2,10 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Amir Kadhim Al-Shiblawi | 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,6 +15,8 @@
             background: #06080f;
             color: #e2e8f0;
             min-height: 100vh;
+            /* حل مشكلة الطول في الآيفون */
+            min-height: -webkit-fill-available;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,141 +31,89 @@
 
         .wrap {
             position: relative; z-index: 2;
-            width: 100%; max-width: 440px;
-            padding: 0 20px 80px;
+            width: 100%; max-width: 420px;
+            padding: 40px 20px 80px;
             display: flex; flex-direction: column; align-items: center;
         }
 
         /* ── HEADER ── */
         .header {
-            padding-top: 72px;
             text-align: center;
-            margin-bottom: 44px;
+            margin-bottom: 40px;
             width: 100%;
-            opacity: 0;
-            animation: fadeUp .8s cubic-bezier(.16,1,.3,1) .05s forwards;
         }
 
         .avatar-wrap {
             position: relative;
-            width: 96px; height: 96px;
-            margin: 0 auto 24px;
+            width: 90px; height: 90px;
+            margin: 0 auto 20px;
         }
         .avatar-ring {
-            position: absolute; inset: -6px;
+            position: absolute; inset: -5px;
             border-radius: 50%;
             background: conic-gradient(from 0deg, #c9a84c, #e8c96e, #c9a84c, #8a6d2f, #c9a84c);
             animation: spinRing 8s linear infinite;
-            z-index: 0;
-        }
-        .avatar-ring::after {
-            content: '';
-            position: absolute; inset: 3px;
-            border-radius: 50%;
-            background: #06080f;
         }
         .avatar-inner {
             position: relative; z-index: 1;
-            width: 96px; height: 96px;
+            width: 90px; height: 90px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #0f2a20, #0a1a30);
+            background: #0a1a30;
             display: flex; align-items: center; justify-content: center;
-            font-size: 40px; color: #c9a84c;
+            font-size: 35px; color: #c9a84c;
+            border: 3px solid #06080f;
         }
         @keyframes spinRing { to { transform: rotate(360deg); } }
 
         .name {
-            font-size: 26px; font-weight: 800;
-            color: #fff; letter-spacing: -.3px;
-            margin-bottom: 10px;
+            font-size: 24px; font-weight: 800;
+            color: #fff; margin-bottom: 8px;
         }
         .gold-line {
             width: 40px; height: 2px;
             background: linear-gradient(90deg, transparent, #c9a84c, transparent);
-            margin: 0 auto 14px;
+            margin: 0 auto 12px;
         }
         .bio {
-            font-size: 11px; font-weight: 500;
+            font-size: 10px; font-weight: 500;
             color: #475569;
-            text-transform: uppercase; letter-spacing: 2.5px;
-            font-family: 'Rajdhani', sans-serif;
-        }
-
-        /* ── SECTION LABEL ── */
-        .section-label {
-            display: flex; align-items: center; gap: 10px;
-            width: 100%; margin-bottom: 16px;
-        }
-        .section-label span {
-            font-size: 9px; font-weight: 700;
-            color: #334155; text-transform: uppercase;
-            letter-spacing: 2px; white-space: nowrap;
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .section-label::before, .section-label::after {
-            content: ''; flex: 1; height: 1px;
-            background: rgba(255,255,255,.07);
-        }
-
-        /* ── LINK CARDS ── */
-        .links { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-
-        .link-card {
-            position: relative;
-            display: flex; align-items: center; gap: 16px;
-            padding: 16px 18px;
-            background: rgba(255,255,255,.03);
-            border: 1px solid rgba(255,255,255,.07);
-            border-radius: 18px;
-            text-decoration: none; color: #e2e8f0;
-            transition: all .25s cubic-bezier(.16,1,.3,1);
-            overflow: hidden;
-            opacity: 0;
-            animation: fadeUp .6s cubic-bezier(.16,1,.3,1) forwards;
-        }
-        .link-card:nth-child(1) { animation-delay: .15s; }
-        .link-card:nth-child(2) { animation-delay: .22s; }
-        .link-card:nth-child(3) { animation-delay: .29s; }
-        .link-card:nth-child(4) { animation-delay: .36s; }
-
-        .link-card:active { transform: scale(.97); }
-
-        .card-ig { border-color: rgba(236,72,153,.12); }
-        .card-ig:active { border-color: rgba(236,72,153,.45); background: rgba(236,72,153,.06); }
-        .card-tg { border-color: rgba(14,165,233,.12); }
-        .card-tg:active { border-color: rgba(14,165,233,.45); background: rgba(14,165,233,.06); }
-        .card-wa { border-color: rgba(34,197,94,.12); }
-        .card-wa:active { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.06); }
-        .card-fb { border-color: rgba(59,130,246,.12); }
-        .card-fb:active { border-color: rgba(59,130,246,.45); background: rgba(59,130,246,.06); }
-
-        .card-icon-wrap {
-            width: 46px; height: 46px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; font-size: 22px;
-        }
-        .card-text { flex: 1; text-align: right; }
-        .card-title { font-size: 16px; font-weight: 700; color: #f1f5f9; display: block; margin-bottom: 2px; }
-        .card-sub {
-            font-size: 9px; font-weight: 700; color: #334155;
             text-transform: uppercase; letter-spacing: 2px;
             font-family: 'Rajdhani', sans-serif;
         }
-        .card-arrow { font-size: 11px; color: #1e293b; }
 
-        /* ── FOOTER ── */
+        /* ── LINKS ── */
+        .links { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+
+        .link-card {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 16px;
+            text-decoration: none; color: #e2e8f0;
+            transition: transform 0.2s ease;
+        }
+
+        /* تأثير الضغط المتوافق مع الآيفون */
+        .link-card:active {
+            transform: scale(0.96);
+            background: rgba(255,255,255,.08);
+        }
+
+        .card-icon-wrap {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .card-text { flex: 1; text-align: right; }
+        .card-title { font-size: 15px; font-weight: 700; color: #f1f5f9; display: block; }
+        .card-sub { font-size: 9px; color: #475569; font-family: 'Rajdhani', sans-serif; }
+
         .footer {
-            margin-top: 60px; text-align: center; padding-bottom: 40px;
-            opacity: 0; animation: fadeUp .6s ease .5s forwards;
+            margin-top: 50px; text-align: center;
+            opacity: 0.6;
         }
-        .footer p:nth-child(1) { font-size: 8px; font-weight: 700; color: #1e293b; text-transform: uppercase; letter-spacing: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 6px; }
-        .footer p:nth-child(2) { font-size: 14px; font-weight: 700; color: #334155; }
-        .footer p:nth-child(3) { font-size: 8px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 4px; font-family: 'Rajdhani', sans-serif; margin-top: 20px; }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+        .footer p { font-size: 12px; font-weight: 700; color: #475569; }
     </style>
 </head>
 <body>
@@ -171,128 +121,70 @@
 <canvas id="bg-canvas"></canvas>
 
 <div class="wrap">
-
     <div class="header">
         <div class="avatar-wrap">
             <div class="avatar-ring"></div>
-            <div class="avatar-inner">
-                <i class="fa-solid fa-user"></i>
-            </div>
+            <div class="avatar-inner"><i class="fa-solid fa-user"></i></div>
         </div>
         <h1 class="name">أمير كاظم الشبلاوي</h1>
         <div class="gold-line"></div>
-        <p class="bio">الروابط الرسمية ووسائل التواصل • 2026</p>
+        <p class="bio">Official Links • 2026</p>
     </div>
 
-    <div class="section-label"><span>Social Links</span></div>
-
     <div class="links">
-
-        <a href="https://instagram.com/amop2_6" target="_blank" class="link-card card-ig">
-            <div class="card-icon-wrap" style="background:rgba(236,72,153,.1)">
-                <i class="fab fa-instagram" style="color:#ec4899"></i>
-            </div>
-            <div class="card-text">
-                <span class="card-title">إنستغرام</span>
-                <span class="card-sub">Follow me</span>
-            </div>
-            <i class="fas fa-chevron-left card-arrow"></i>
+        <a href="https://instagram.com/amop2_6" target="_blank" class="link-card">
+            <div class="card-icon-wrap" style="background:rgba(236,72,153,.1)"><i class="fab fa-instagram" style="color:#ec4899"></i></div>
+            <div class="card-text"><span class="card-title">إنستغرام</span><span class="card-sub">Follow me</span></div>
+            <i class="fas fa-chevron-left" style="font-size: 10px; color: #1e293b;"></i>
         </a>
 
-        <a href="https://t.me/amop2_6" target="_blank" class="link-card card-tg">
-            <div class="card-icon-wrap" style="background:rgba(14,165,233,.1)">
-                <i class="fab fa-telegram-plane" style="color:#38bdf8"></i>
-            </div>
-            <div class="card-text">
-                <span class="card-title">تيليجرام</span>
-                <span class="card-sub">Message me</span>
-            </div>
-            <i class="fas fa-chevron-left card-arrow"></i>
+        <a href="https://t.me/amop2_6" target="_blank" class="link-card">
+            <div class="card-icon-wrap" style="background:rgba(14,165,233,.1)"><i class="fab fa-telegram-plane" style="color:#38bdf8"></i></div>
+            <div class="card-text"><span class="card-title">تيليجرام</span><span class="card-sub">Message me</span></div>
+            <i class="fas fa-chevron-left" style="font-size: 10px; color: #1e293b;"></i>
         </a>
 
-        <a href="https://wa.me/9647866941196" target="_blank" class="link-card card-wa">
-            <div class="card-icon-wrap" style="background:rgba(34,197,94,.1)">
-                <i class="fab fa-whatsapp" style="color:#4ade80"></i>
-            </div>
-            <div class="card-text">
-                <span class="card-title">واتساب</span>
-                <span class="card-sub">Chat now</span>
-            </div>
-            <i class="fas fa-chevron-left card-arrow"></i>
+        <a href="https://wa.me/9647866941196" target="_blank" class="link-card">
+            <div class="card-icon-wrap" style="background:rgba(34,197,94,.1)"><i class="fab fa-whatsapp" style="color:#4ade80"></i></div>
+            <div class="card-text"><span class="card-title">واتساب</span><span class="card-sub">Chat now</span></div>
+            <i class="fas fa-chevron-left" style="font-size: 10px; color: #1e293b;"></i>
         </a>
 
-        <a href="https://www.facebook.com/share/17VhtYKEka/" target="_blank" class="link-card card-fb">
-            <div class="card-icon-wrap" style="background:rgba(59,130,246,.1)">
-                <i class="fab fa-facebook" style="color:#60a5fa"></i>
-            </div>
-            <div class="card-text">
-                <span class="card-title">فيسبوك</span>
-                <span class="card-sub">Profile</span>
-            </div>
-            <i class="fas fa-chevron-left card-arrow"></i>
+        <a href="https://www.facebook.com/share/17VhtYKEka/" target="_blank" class="link-card">
+            <div class="card-icon-wrap" style="background:rgba(59,130,246,.1)"><i class="fab fa-facebook" style="color:#60a5fa"></i></div>
+            <div class="card-text"><span class="card-title">فيسبوك</span><span class="card-sub">Profile</span></div>
+            <i class="fas fa-chevron-left" style="font-size: 10px; color: #1e293b;"></i>
         </a>
-
     </div>
 
     <footer class="footer">
-        <p>Developed By</p>
-        <p>Amir Kadhim Al-Shiblawi</p>
-        <p>Rights Reserved &copy; 2026</p>
+        <p>Amir Kadhim Al-Shiblawi &copy; 2026</p>
     </footer>
-
 </div>
 
 <script>
-(function() {
+    // كود الخلفية المحسن ليعمل بسلاسة على الآيفون بدون استهلاك بطارية
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
-    let W, H, particles = [];
-
+    let W, H;
     function resize() {
-        W = canvas.width  = window.innerWidth;
+        W = canvas.width = window.innerWidth;
         H = canvas.height = window.innerHeight;
     }
     window.addEventListener('resize', resize);
     resize();
-
-    for (let i = 0; i < 55; i++) {
-        particles.push({
-            x: Math.random() * W, y: Math.random() * H,
-            r: Math.random() * 1.2 + .3,
-            vx: (Math.random() - .5) * .25,
-            vy: (Math.random() - .5) * .25,
-            a: Math.random() * .4 + .08,
-            gold: Math.random() > .6,
-        });
-    }
-
     function draw() {
         ctx.clearRect(0, 0, W, H);
-
-        // توهج مركزي
-        const grd = ctx.createRadialGradient(W/2, H*.3, 0, W/2, H*.3, W*.55);
-        grd.addColorStop(0, 'rgba(15,100,80,.18)');
-        grd.addColorStop(.5, 'rgba(15,50,80,.08)');
+        const grd = ctx.createRadialGradient(W/2, H*0.3, 0, W/2, H*0.3, W*0.6);
+        grd.addColorStop(0, 'rgba(15,100,80,0.1)');
         grd.addColorStop(1, 'transparent');
         ctx.fillStyle = grd;
         ctx.fillRect(0, 0, W, H);
-
-        particles.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-            ctx.fillStyle = p.gold
-                ? `rgba(201,168,76,${p.a})`
-                : `rgba(15,180,137,${p.a * .6})`;
-            ctx.fill();
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-        });
         requestAnimationFrame(draw);
     }
     draw();
-})();
 </script>
-
 </body>
 </html>
+
+
