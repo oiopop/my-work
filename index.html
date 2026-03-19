@@ -2,973 +2,662 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#c9a84c">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="VIP Links">
-<link rel="apple-touch-icon" href="icons/icon-152.png">
-<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Link-in-Bio</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
-<title>VIP Link-in-Bio</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --gold:#c9a84c;--bright:#f1d38e;--dark:#050505;
-  --card:#0d0d0d;--border:rgba(201,168,76,0.2);
-  --safe-top:env(safe-area-inset-top,20px);
-  --safe-bot:env(safe-area-inset-bottom,10px);
-}
-html,body{height:100%;overscroll-behavior:none}
-body{font-family:'Tajawal',sans-serif;background:var(--dark);color:#fff;
-  min-height:100vh;-webkit-overflow-scrolling:touch}
+:root{--gold:#c9a84c;--bright:#f1d38e;--dark:#050505;--card:#0c0c0c;--border:rgba(201,168,76,0.2)}
+body{font-family:'Tajawal',sans-serif;background:var(--dark);color:#fff;min-height:100vh}
 
+/* ── animations ── */
 @keyframes spin    {to{transform:rotate(360deg)}}
-@keyframes fadeUp  {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse   {0%,100%{box-shadow:0 0 16px rgba(201,168,76,.4)}50%{box-shadow:0 0 34px rgba(201,168,76,.8)}}
-@keyframes sparkle {0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+@keyframes fadeUp  {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse   {0%,100%{box-shadow:0 0 18px rgba(201,168,76,.4)}50%{box-shadow:0 0 35px rgba(201,168,76,.75)}}
+@keyframes sparkle {0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.6;transform:scale(1.5)}}
 
-/* ══ Views ════════════════════════════════════════════════════════════════ */
-.view{display:none;min-height:100vh;flex-direction:column;
-  align-items:center;justify-content:center}
-.view.active{display:flex}
-#view-admin{justify-content:flex-start;overflow-y:auto}
+/* ── views ── */
+#view-profile,#view-admin,#view-home,#view-login,#view-404{display:none;min-height:100vh}
 
-/* ══ Spinner ══════════════════════════════════════════════════════════════ */
-.spin{width:44px;height:44px;border-radius:50%;
-  border:3px solid rgba(201,168,76,.15);border-top-color:var(--gold);
-  animation:spin .7s linear infinite}
-
-/* ══ Profile ══════════════════════════════════════════════════════════════ */
+/* ── profile page ── */
 #view-profile{
-  padding:calc(50px + var(--safe-top)) 24px calc(40px + var(--safe-bot));
-  text-align:center;position:relative;overflow:hidden;
-  background:radial-gradient(circle at 50% 22%,rgba(201,168,76,.09),transparent 62%),var(--dark);
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 50% 20%, rgba(201,168,76,.08), transparent 65%), var(--dark);
 }
-.star{position:absolute;border-radius:50%;background:var(--bright);pointer-events:none}
-.ring-wrap{position:relative;width:130px;height:130px;margin:0 auto 22px;animation:fadeUp .5s ease both}
+.star{position:absolute;border-radius:50%;background:var(--bright);pointer-events:none;animation:sparkle 3s ease-in-out infinite}
+
+/* avatar ring */
+.avatar-wrap{position:relative;width:130px;height:130px;margin:0 auto 24px;animation:fadeUp .6s ease both}
 .ring{position:absolute;inset:-5px;border-radius:50%;
-  background:conic-gradient(var(--gold),var(--bright),#7a5c1e,var(--gold));
+  background:conic-gradient(var(--gold),var(--bright),#8a6d2f,var(--gold));
   animation:spin 8s linear infinite}
 .ring-gap{position:absolute;inset:3px;border-radius:50%;background:var(--dark);z-index:1}
-.ring-inner{position:absolute;inset:7px;border-radius:50%;background:#111;z-index:2;
+.avatar-inner{position:absolute;inset:7px;border-radius:50%;background:#111;z-index:2;
   overflow:hidden;display:flex;align-items:center;justify-content:center}
-.ring-inner img{width:100%;height:100%;object-fit:cover}
-.ring-inner i{font-size:44px;color:var(--gold)}
-.name-ar{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;animation:fadeUp .6s ease both}
-.name-en{font-family:'Playfair Display',serif;font-style:italic;font-size:20px;
-  color:var(--gold);margin-bottom:10px;animation:fadeUp .65s ease both;
-  text-shadow:0 0 14px rgba(201,168,76,.5)}
-.bio-tag{color:#555;font-size:11px;letter-spacing:3px;text-transform:uppercase;
-  margin-bottom:16px;animation:fadeUp .7s ease both}
-.bio-text{color:#555;font-size:13px;max-width:260px;line-height:1.8;
-  margin:0 auto 26px;animation:fadeUp .74s ease both}
-.soc-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
-  animation:fadeUp .78s ease both}
-.soc-row a{color:var(--gold);font-size:25px;width:66px;height:66px;border-radius:20px;
+.avatar-inner img{width:100%;height:100%;object-fit:cover}
+.avatar-inner i{font-size:46px;color:var(--gold)}
+
+/* text */
+.p-name-ar{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;
+  text-shadow:0 0 20px rgba(255,255,255,.15);animation:fadeUp .65s ease both}
+.p-name-en{font-family:'Playfair Display',serif;font-style:italic;font-size:21px;
+  color:var(--gold);margin-bottom:10px;letter-spacing:.5px;
+  text-shadow:0 0 12px rgba(201,168,76,.5);animation:fadeUp .7s ease both}
+.p-tag{color:#888;font-size:12px;letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:14px;animation:fadeUp .73s ease both}
+.p-bio{color:#555;font-size:13px;max-width:260px;line-height:1.8;margin:0 auto 30px;
+  animation:fadeUp .76s ease both}
+
+/* social icons */
+.social-row{display:flex;gap:20px;justify-content:center;animation:fadeUp .8s ease both}
+.social-row a{
+  color:var(--gold);font-size:26px;width:68px;height:68px;border-radius:20px;
   display:flex;align-items:center;justify-content:center;text-decoration:none;
-  border:1.5px solid rgba(201,168,76,.28);background:rgba(201,168,76,.05);
-  box-shadow:0 0 16px rgba(201,168,76,.28);animation:pulse 3s ease-in-out infinite;
-  -webkit-user-select:none}
-.soc-row a:active{transform:scale(.9);background:rgba(201,168,76,.18)}
+  border:1.5px solid rgba(201,168,76,.35);background:rgba(201,168,76,.05);
+  box-shadow:0 0 18px rgba(201,168,76,.35),inset 0 0 12px rgba(201,168,76,.05);
+  animation:pulse 3s ease-in-out infinite;transition:all .25s
+}
+.social-row a:hover{background:rgba(201,168,76,.15);transform:translateY(-3px) scale(1.06);
+  box-shadow:0 0 35px rgba(201,168,76,.6)}
 
-/* ══ Setup Screen ════════════════════════════════════════════════════════ */
-#view-setup{padding:calc(30px + var(--safe-top)) 20px calc(30px + var(--safe-bot))}
-.setup-box{background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:26px;width:100%;max-width:400px;animation:fadeUp .5s ease both}
-.step{display:flex;gap:12px;margin-bottom:16px;align-items:flex-start}
-.step-n{min-width:26px;height:26px;border-radius:50%;background:var(--gold);
-  color:#000;font-weight:800;font-size:12px;display:flex;align-items:center;
-  justify-content:center;margin-top:2px}
-.step p{color:#999;font-size:13px;line-height:1.7}
-.step a{color:var(--gold);text-decoration:none;font-weight:700}
-.step code{color:var(--bright);background:rgba(201,168,76,.1);
-  padding:1px 6px;border-radius:4px;font-size:12px}
+/* ── admin / login shared ── */
+.panel{max-width:700px;margin:0 auto;padding:28px 16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:26px;margin-bottom:16px;animation:fadeUp .4s ease both}
+.card-sm{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:36px;width:320px;text-align:center;animation:fadeUp .5s ease both;
+  box-shadow:0 0 50px rgba(201,168,76,.07)}
 
-/* ══ Login ════════════════════════════════════════════════════════════════ */
-#view-login{padding:24px}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:34px 26px;width:100%;max-width:340px;text-align:center;
-  animation:fadeUp .5s ease both;transition:transform .08s}
-
-/* ══ Admin ════════════════════════════════════════════════════════════════ */
-.wrap{width:100%;max-width:660px;padding:calc(18px + var(--safe-top)) 14px calc(60px + var(--safe-bot))}
-.adm-hdr{display:flex;align-items:center;justify-content:space-between;
-  padding-bottom:14px;border-bottom:1px solid #111;margin-bottom:14px}
-.card{background:var(--card);border:1px solid #181818;border-radius:16px;
-  padding:16px;margin-bottom:11px;animation:fadeUp .3s ease both}
-.form-card{background:var(--card);border:1px solid var(--border);
-  border-radius:18px;padding:20px;margin-bottom:14px;display:none;
-  animation:fadeUp .4s ease both}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.lbl{color:#555;font-size:11px;display:block;margin-bottom:3px;text-align:right}
-
-/* ══ Inputs ══════════════════════════════════════════════════════════════ */
 input[type=text],input[type=password]{
   width:100%;background:#050505;border:1px solid #222;border-radius:10px;
-  padding:12px 13px;color:#fff;font-size:15px;font-family:'Tajawal',sans-serif;
-  outline:none;-webkit-appearance:none;transition:border-color .2s;
-  direction:inherit;margin-bottom:9px}
+  padding:11px 14px;color:#fff;font-size:14px;font-family:'Tajawal',sans-serif;
+  outline:none;margin-bottom:10px;transition:border-color .2s;direction:inherit
+}
 input:focus{border-color:var(--gold)}
-input[dir=ltr]{direction:ltr;text-align:left}
+input[dir=ltr]{direction:ltr}
 
-/* slug input */
-.slug-row{position:relative;margin-bottom:8px}
-.slug-pre{position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  color:#444;font-size:12px;font-family:monospace;pointer-events:none;z-index:2}
-#f-slug{padding-left:46px;margin-bottom:0}
-#f-slug:disabled{color:#666;cursor:not-allowed}
-
-/* link preview box */
-.lnk-box{background:rgba(201,168,76,.04);border:1px solid var(--border);
-  border-radius:11px;padding:11px 13px;margin-bottom:11px}
-.lnk-box label{color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase;
-  display:block;margin-bottom:4px}
-.lnk-box code{color:var(--bright);font-size:11.5px;word-break:break-all;
-  line-height:1.7;display:block;font-family:monospace}
-.lnk-note{color:#333;font-size:10px;margin-top:4px}
-
-/* client top row */
-.ctop{display:flex;gap:12px;align-items:center;margin-bottom:11px}
-.cav{width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;
-  border:2px solid var(--border);background:#111;
-  display:flex;align-items:center;justify-content:center}
-.cav img{width:100%;height:100%;object-fit:cover}
-.cacts{display:flex;gap:6px}
-
-/* ══ Buttons ═════════════════════════════════════════════════════════════ */
-.btn{padding:9px 12px;border-radius:10px;cursor:pointer;font-family:'Tajawal',sans-serif;
-  font-size:12px;font-weight:600;border:1px solid;white-space:nowrap;
-  -webkit-appearance:none;outline:none}
-.btn:active{opacity:.6}
 .btn-gold{
-  width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;
+  width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;
   background:linear-gradient(135deg,#7a5c1e,var(--gold),var(--bright),var(--gold));
-  font-family:'Tajawal',sans-serif;font-weight:800;font-size:16px;color:#000;
-  margin-bottom:8px;-webkit-appearance:none;outline:none}
-.btn-gold:active{opacity:.78}
-.btn-gray{width:100%;padding:13px;border:1px solid #252525;border-radius:12px;cursor:pointer;
-  background:#141414;font-family:'Tajawal',sans-serif;font-weight:600;
-  font-size:14px;color:#888;-webkit-appearance:none;outline:none}
-.btn-gray:active{background:#1e1e1e}
+  font-family:'Tajawal',sans-serif;font-weight:700;font-size:15px;color:#000;
+  margin-bottom:8px;transition:opacity .2s
+}
+.btn-gold:hover{opacity:.85}
+.btn-gray{
+  width:100%;padding:13px;border:1px solid #2a2a2a;border-radius:12px;cursor:pointer;
+  background:#1a1a1a;font-family:'Tajawal',sans-serif;font-weight:600;
+  font-size:14px;color:#aaa;transition:background .2s
+}
+.btn-gray:hover{background:#222}
+.btn-sm{
+  padding:9px 14px;border-radius:10px;cursor:pointer;font-family:'Tajawal',sans-serif;
+  font-size:12px;border:1px solid;white-space:nowrap
+}
 
-/* photo upload */
-.ph-row{display:flex;gap:12px;align-items:center;margin-bottom:16px}
-.ph-thumb{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;
-  background:#111;display:flex;align-items:center;justify-content:center;
-  border:2px dashed #2a2a2a}
-.ph-thumb img{width:100%;height:100%;object-fit:cover}
+/* link box */
+.link-box{
+  background:rgba(201,168,76,.04);border:1px solid var(--border);
+  border-radius:12px;padding:12px 14px;margin-bottom:14px
+}
+.link-box p{color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.link-box code{color:var(--bright);font-size:11px;word-break:break-all;line-height:1.7;
+  display:block;font-family:monospace}
 
-/* del confirm */
-.del-box{margin-top:9px;background:rgba(229,85,85,.06);
-  border:1px solid rgba(229,85,85,.2);border-radius:11px;padding:12px;
-  text-align:center;display:none}
+/* client card row */
+.client-card{background:var(--card);border:1px solid #1a1a1a;border-radius:18px;
+  padding:18px;margin-bottom:14px;animation:fadeUp .4s ease both}
+.client-top{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.client-avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  border:2px solid var(--border);background:#111;display:flex;align-items:center;justify-content:center}
+.client-actions{display:flex;gap:8px}
 
-/* ══ Toast ════════════════════════════════════════════════════════════════ */
-#toast{position:fixed;bottom:calc(26px + var(--safe-bot));left:50%;
-  transform:translateX(-50%) translateY(80px);
-  background:#0d0d0d;border:1px solid var(--border);color:var(--gold);
-  padding:11px 24px;border-radius:50px;font-size:14px;font-weight:600;
-  font-family:'Tajawal',sans-serif;
-  transition:transform .32s cubic-bezier(.34,1.56,.64,1);
-  z-index:9999;white-space:nowrap;pointer-events:none}
-#toast.show{transform:translateX(-50%) translateY(0)}
+/* header */
+.admin-header{display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid #111;padding-bottom:20px;margin-bottom:20px}
 
-/* ══ iOS hint ════════════════════════════════════════════════════════════ */
-#ios-hint{position:fixed;bottom:0;left:0;right:0;
-  background:#0e0e0e;border-top:1px solid var(--border);
-  padding:16px 18px calc(18px + var(--safe-bot));
-  display:none;z-index:888;text-align:center;animation:fadeUp .4s ease both}
-#ios-hint p{color:#888;font-size:13px;line-height:2}
-#ios-hint strong{color:var(--gold)}
-.xbtn{position:absolute;top:10px;left:12px;background:none;border:none;
-  color:#444;font-size:24px;cursor:pointer;-webkit-appearance:none;outline:none}
+/* confirm delete */
+.del-confirm{margin-top:12px;background:rgba(229,85,85,.06);
+  border:1px solid rgba(229,85,85,.2);border-radius:12px;padding:14px;text-align:center}
+
+/* form grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0}
+label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:right}
+
+/* photo upload row */
+.photo-row{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+.photo-thumb{width:58px;height:58px;border-radius:50%;overflow:hidden;flex-shrink:0;
+  background:#111;display:flex;align-items:center;justify-content:center}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
 
 /* preview modal */
-#prev-modal{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:990;
-  display:none;align-items:center;justify-content:center;
-  padding:calc(16px + var(--safe-top)) 14px calc(16px + var(--safe-bot))}
-#prev-modal.open{display:flex}
-#prev-inner{width:100%;max-width:330px;border-radius:22px;overflow:hidden;
-  border:1px solid var(--border);max-height:88vh;overflow-y:auto}
-#prev-wrap{flex-direction:column;align-items:center;justify-content:center;
-  padding:44px 18px 36px;text-align:center;position:relative;overflow:hidden;
-  background:radial-gradient(circle at 50% 20%,rgba(201,168,76,.08),transparent 62%),var(--dark);
-  display:flex}
+#preview-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);
+  z-index:999;align-items:center;justify-content:center}
+#preview-modal.open{display:flex}
+#preview-inner{width:340px;border-radius:24px;overflow:hidden;
+  border:1px solid var(--border);max-height:90vh;overflow-y:auto}
 
-#view-404{text-align:center;padding:40px}
-.empty{text-align:center;padding:44px 16px;color:#252525}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}
-a{-webkit-touch-callout:none}
+/* 404 / home */
+.center-page{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:40px;animation:fadeUp .5s ease both}
+
+/* search */
+#search-box{margin-bottom:16px}
+
+/* empty */
+.empty{text-align:center;color:#2a2a2a;padding:60px;font-size:15px}
+
+/* toast */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:#1a1a1a;border:1px solid var(--border);color:var(--gold);
+  padding:12px 24px;border-radius:30px;font-size:14px;font-family:'Tajawal',sans-serif;
+  transition:transform .3s ease;z-index:9999;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* preview inside modal */
+#preview-profile-wrap{
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:50px 20px;text-align:center;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 50% 20%,rgba(201,168,76,.08),transparent 65%),var(--dark)
+}
 </style>
 </head>
 <body>
 
-<div id="toast"></div>
+<!-- ══ TOAST ══════════════════════════════════════ -->
+<div id="toast">✅ تم نسخ الرابط!</div>
 
-<div id="ios-hint">
-  <button class="xbtn" onclick="this.parentElement.style.display='none'">×</button>
-  <p>لتثبيت التطبيق:<br>
-    اضغط <strong>زر المشاركة ⬆️</strong> ثم<br>
-    <strong>إضافة للشاشة الرئيسية ➕</strong></p>
-</div>
-
-<!-- Preview Modal -->
-<div id="prev-modal" onclick="closePrev()">
-  <div id="prev-inner" onclick="event.stopPropagation()">
-    <div id="prev-wrap"></div>
-    <div style="background:#0d0d0d;padding:12px">
-      <button class="btn-gray" onclick="closePrev()">✕ إغلاق</button>
+<!-- ══ PREVIEW MODAL ══════════════════════════════ -->
+<div id="preview-modal">
+  <div id="preview-inner">
+    <div id="preview-profile-wrap" style="display:flex"></div>
+    <div style="background:#0c0c0c;padding:16px;text-align:center">
+      <button class="btn-gray" onclick="closePreview()">✕ إغلاق المعاينة</button>
     </div>
   </div>
 </div>
 
-<!-- ══ LOADING ════════════════════════════════════════════════════════════ -->
-<div id="view-loading" class="view active">
-  <div class="spin"></div>
-</div>
-
-<!-- ══ HOME ══════════════════════════════════════════════════════════════ -->
-<div id="view-home" class="view">
-  <div style="text-align:center;padding:40px 28px;animation:fadeUp .5s ease both">
-    <div style="font-size:58px;margin-bottom:18px;filter:drop-shadow(0 0 14px rgba(201,168,76,.4))">💎</div>
-    <h1 style="color:var(--gold);font-size:24px;font-weight:800;margin-bottom:10px">VIP Link-in-Bio</h1>
-    <p style="color:#2a2a2a;font-size:13px;margin-bottom:30px;line-height:2">
-      نظام احترافي لصفحات التواصل<br>لزبائنك على كل الأجهزة
+<!-- ══ HOME ══════════════════════════════════════ -->
+<div id="view-home" style="display:flex">
+  <div class="center-page" style="min-height:100vh;width:100%">
+    <div style="font-size:56px;margin-bottom:18px">💎</div>
+    <h1 style="color:var(--gold);font-size:22px;margin-bottom:10px;font-weight:800">VIP Link-in-Bio</h1>
+    <p style="color:#333;font-size:13px;margin-bottom:28px;line-height:2">
+      نظام احترافي لإدارة صفحات التواصل<br>لزبائنك بدون ذكر اسمك
     </p>
-    <button class="btn-gold" style="max-width:220px" onclick="go('admin=1')">🔑 دخول الأدمن</button>
+    <button class="btn-gold" style="max-width:200px" onclick="goAdmin()">🔑 دخول الأدمن</button>
   </div>
 </div>
 
-<!-- ══ SETUP (مرة وحدة فقط) ════════════════════════════════════════════════ -->
-<div id="view-setup" class="view">
-  <div class="setup-box">
-    <h2 style="color:var(--gold);font-size:17px;font-weight:800;text-align:center;margin-bottom:4px">
-      🔧 إعداد أولي — مرة وحدة فقط
-    </h2>
-    <p style="color:#333;font-size:12px;text-align:center;margin-bottom:18px">
-      حتى يشتغل الرابط على كل الأجهزة
-    </p>
-
-    <div class="step">
-      <div class="step-n">1</div>
-      <p>افتح <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> وسجّل بأي إيميل مجاناً</p>
-    </div>
-    <div class="step">
-      <div class="step-n">2</div>
-      <p>بعد الدخول، اضغط على <code>API Keys</code> من القائمة — انسخ مفتاح الـ <code>Secret Key</code></p>
-    </div>
-    <div class="step">
-      <div class="step-n">3</div>
-      <p>الصق المفتاح هنا:</p>
-    </div>
-
-    <input type="text" id="cfg-key" placeholder="$2a$10$..." dir="ltr"
-      autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
-      style="margin-top:4px">
-    <p id="cfg-err" style="color:#e55;font-size:12px;margin:-6px 0 8px;display:none"></p>
-    <button class="btn-gold" id="cfg-btn" onclick="setupDB()">✅ تهيئة قاعدة البيانات</button>
-    <p style="color:#1e1e1e;font-size:11px;text-align:center;margin-top:10px">
-      المفتاح يُحفظ على جهازك فقط
-    </p>
+<!-- ══ LOGIN ══════════════════════════════════════ -->
+<div id="view-login" style="display:none;align-items:center;justify-content:center">
+  <div class="card-sm">
+    <div style="font-size:42px;margin-bottom:16px">🔐</div>
+    <h2 style="color:var(--gold);margin-bottom:22px;font-size:20px">سوبر أدمن</h2>
+    <input type="password" id="pw-input" placeholder="كلمة السر" dir="ltr"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <p id="pw-err" style="color:#e55;font-size:13px;margin-bottom:8px;display:none">كلمة السر غلط ❌</p>
+    <button class="btn-gold" onclick="checkPw()">دخول</button>
   </div>
 </div>
 
-<!-- ══ LOGIN ═════════════════════════════════════════════════════════════ -->
-<div id="view-login" class="view">
-  <div class="login-box">
-    <div style="font-size:42px;margin-bottom:14px">🔐</div>
-    <h2 style="color:var(--gold);margin-bottom:5px;font-size:20px;font-weight:800">سوبر أدمن</h2>
-    <p style="color:#2a2a2a;font-size:12px;margin-bottom:20px">VIP Link-in-Bio</p>
-    <input type="password" id="pw" placeholder="كلمة السر" dir="ltr"
-      autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
-    <p id="pw-err" style="color:#e55;font-size:13px;margin-bottom:8px;display:none">❌ كلمة السر غلط</p>
-    <button class="btn-gold" onclick="login()">دخول</button>
+<!-- ══ 404 ════════════════════════════════════════ -->
+<div id="view-404">
+  <div class="center-page" style="min-height:100vh;width:100%">
+    <div style="font-size:60px;margin-bottom:10px">🕳️</div>
+    <p style="color:#333;font-size:16px">الصفحة غير موجودة</p>
   </div>
 </div>
 
-<!-- ══ ADMIN ══════════════════════════════════════════════════════════════ -->
-<div id="view-admin" class="view">
-  <div class="wrap">
+<!-- ══ PROFILE ════════════════════════════════════ -->
+<div id="view-profile">
+  <!-- filled dynamically -->
+</div>
 
-    <div class="adm-hdr">
+<!-- ══ ADMIN DASHBOARD ════════════════════════════ -->
+<div id="view-admin" style="display:none">
+  <div class="panel">
+    <div class="admin-header">
       <div>
-        <h1 style="color:var(--gold);font-size:18px;font-weight:800">🔑 سوبر أدمن</h1>
-        <p id="cnt" style="color:#333;font-size:12px;margin-top:2px">...</p>
+        <h1 style="color:var(--gold);font-size:20px;font-weight:800">🔑 سوبر أدمن</h1>
+        <p id="clients-count" style="color:#444;font-size:13px;margin-top:2px">0 زبون مسجل</p>
       </div>
-      <button class="btn-gold" style="width:auto;padding:10px 16px;font-size:14px;margin:0"
-        onclick="showForm()">+ زبون جديد</button>
+      <button class="btn-gold" style="width:auto;padding:11px 20px;font-size:14px"
+        onclick="showAddForm()">+ زبون جديد</button>
     </div>
 
-    <!-- Form -->
-    <div id="form-wrap" class="form-card">
-      <h3 id="form-ttl" style="color:var(--gold);margin-bottom:14px;font-size:15px;text-align:right">
-        ➕ زبون جديد
+    <!-- Add/Edit form -->
+    <div id="client-form" style="display:none" class="card">
+      <h3 id="form-title" style="color:var(--gold);margin-bottom:20px;font-size:17px;text-align:right">
+        ➕ إضافة زبون جديد
       </h3>
-
-      <!-- Slug — أهم حقل -->
-      <label class="lbl">
-        🔗 رابط البايو الخاص — <span style="color:#3a3a3a">يبقى ثابت للأبد</span>
-      </label>
-      <div class="slug-row">
-        <span class="slug-pre">?u=</span>
-        <input type="text" id="f-slug" placeholder="amir" dir="ltr"
-          autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
-          oninput="previewSlug()">
-      </div>
-      <p id="slug-err" style="color:#e55;font-size:11px;margin:-2px 0 7px;display:none"></p>
-
-      <!-- معاينة الرابط -->
-      <div id="slug-prev" class="lnk-box" style="display:none">
-        <label>رابط الزبون الذي يحطه في البايو 🔗</label>
-        <code id="slug-prev-txt"></code>
-        <p class="lnk-note">✅ الرابط لا يتغير — حتى لو عدّلت البيانات لاحقاً</p>
-      </div>
-
-      <div class="row2">
+      <div class="grid2">
         <div>
           <label class="lbl">الاسم بالعربي</label>
-          <input type="text" id="f-ar" placeholder="أمير كاظم" autocomplete="off">
+          <input type="text" id="f-nameAr" placeholder="أحمد محمد">
         </div>
         <div>
           <label class="lbl">الاسم بالإنكليزي</label>
-          <input type="text" id="f-en" placeholder="Amir K." dir="ltr" autocomplete="off">
+          <input type="text" id="f-nameEn" placeholder="Ahmed M." dir="ltr">
         </div>
       </div>
 
-      <label class="lbl">نبذة <span style="color:#222">(اختياري)</span></label>
-      <input type="text" id="f-bio" placeholder="رجل أعمال | مستثمر" autocomplete="off">
-
-      <div class="row2">
-        <div>
-          <label class="lbl">📱 واتساب</label>
-          <input type="text" id="f-wa" placeholder="9647801234567" dir="ltr" inputmode="numeric">
-        </div>
-        <div>
-          <label class="lbl">📷 إنستغرام</label>
-          <input type="text" id="f-ig" placeholder="username" dir="ltr" autocorrect="off" autocapitalize="none">
-        </div>
-        <div>
-          <label class="lbl">✈️ تيليجرام</label>
-          <input type="text" id="f-tg" placeholder="username" dir="ltr" autocorrect="off" autocapitalize="none">
-        </div>
-        <div>
-          <label class="lbl">👤 فيسبوك</label>
-          <input type="text" id="f-fb" placeholder="رابط" dir="ltr">
-        </div>
+      <!-- slug + live preview -->
+      <label class="lbl" style="margin-top:4px">
+        🔗 الرابط الخاص <span style="color:#333">(إنكليزي بدون مسافات)</span>
+      </label>
+      <div style="position:relative;margin-bottom:8px">
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+          color:#444;font-size:12px;font-family:monospace;pointer-events:none">?u=</span>
+        <input type="text" id="f-slug" placeholder="ahmed2026" dir="ltr"
+          style="padding-left:48px;margin-bottom:0" oninput="updateSlugPreview()">
+      </div>
+      <p id="slug-err" style="color:#e55;font-size:11px;margin-bottom:6px;display:none"></p>
+      <div id="slug-preview" style="display:none" class="link-box" style="margin-top:8px">
+        <p>رابط الزبون — يتولد تلقائياً 🔗</p>
+        <code id="slug-preview-text"></code>
       </div>
 
-      <label class="lbl">🖼️ صورة <span style="color:#222">(اختياري)</span></label>
-      <div class="ph-row">
-        <div class="ph-thumb" id="ph-thumb">
-          <i class="fa-solid fa-user" style="color:#2a2a2a;font-size:20px"></i>
+      <label class="lbl" style="margin-top:8px">نبذة مختصرة (اختياري)</label>
+      <input type="text" id="f-bio" placeholder="رجل أعمال | مستثمر عقاري">
+
+      <div class="grid2">
+        <div><label class="lbl">📱 واتساب</label>
+          <input type="text" id="f-wa" placeholder="9647801234567" dir="ltr"></div>
+        <div><label class="lbl">📷 إنستغرام</label>
+          <input type="text" id="f-ig" placeholder="@username" dir="ltr"></div>
+        <div><label class="lbl">✈️ تيليجرام</label>
+          <input type="text" id="f-tg" placeholder="@username" dir="ltr"></div>
+        <div><label class="lbl">👤 فيسبوك</label>
+          <input type="text" id="f-fb" placeholder="رابط الصفحة" dir="ltr"></div>
+      </div>
+
+      <label class="lbl">🖼️ صورة شخصية (اختياري)</label>
+      <div class="photo-row">
+        <div class="photo-thumb" id="photo-thumb-wrap" style="border:2px dashed #2a2a2a">
+          <i class="fa-solid fa-user" style="color:#333;font-size:22px" id="photo-placeholder"></i>
         </div>
         <div style="flex:1">
-          <input type="file" id="f-ph-inp" accept="image/*"
-            style="display:none" onchange="pickPhoto(event)">
-          <button class="btn-gray" style="margin-bottom:6px"
-            onclick="document.getElementById('f-ph-inp').click()" id="ph-btn">
+          <input type="file" id="f-photo-input" accept="image/*"
+            style="display:none" onchange="handlePhoto(event)">
+          <button class="btn-gray" onclick="document.getElementById('f-photo-input').click()" id="photo-btn">
             رفع صورة 📤
           </button>
-          <button id="ph-rm" onclick="removePhoto()"
-            style="display:none;background:none;border:none;color:#c55;font-size:12px;
-            cursor:pointer;width:100%;font-family:'Tajawal',sans-serif;-webkit-appearance:none">
+          <button id="photo-remove-btn" onclick="removePhoto()"
+            style="background:none;border:none;color:#e55;font-size:11px;cursor:pointer;
+              margin-top:4px;width:100%;font-family:'Tajawal',sans-serif;display:none">
             حذف الصورة ✕
           </button>
         </div>
       </div>
-      <input type="hidden" id="f-ph">
-      <input type="hidden" id="f-id">
+      <input type="hidden" id="f-photo">
+      <input type="hidden" id="f-edit-id">
 
-      <!-- loading & buttons -->
-      <div id="form-loading" style="display:none;text-align:center;padding:10px">
-        <div class="spin" style="width:28px;height:28px;margin:0 auto 8px"></div>
-        <p style="color:#444;font-size:13px">جاري الحفظ...</p>
-      </div>
-      <div id="form-btns" style="display:flex;gap:10px">
-        <div style="flex:1"><button class="btn-gold" onclick="saveClient()" style="margin:0">💾 حفظ</button></div>
+      <div style="display:flex;gap:10px">
+        <div style="flex:1"><button class="btn-gold" onclick="saveClient()">💾 حفظ</button></div>
         <div style="flex:1"><button class="btn-gray" onclick="cancelForm()">إلغاء</button></div>
       </div>
     </div>
 
     <!-- Search -->
-    <div id="srch-wrap" style="margin-bottom:11px;display:none">
-      <input type="text" id="srch" placeholder="🔍 بحث..." oninput="filterC()" autocomplete="off">
+    <div id="search-box">
+      <input type="text" placeholder="🔍 بحث..." id="search-input" oninput="renderList()">
     </div>
 
-    <div id="list"></div>
-    <div id="empty" class="empty" style="display:none">
-      <div style="font-size:38px;margin-bottom:10px">👆</div>
-      أضف أول زبون!
-    </div>
-
-  </div>
-</div>
-
-<!-- ══ PROFILE ════════════════════════════════════════════════════════════ -->
-<div id="view-profile" class="view"></div>
-
-<!-- ══ 404 ════════════════════════════════════════════════════════════════ -->
-<div id="view-404" class="view">
-  <div style="text-align:center;padding:40px;animation:fadeUp .5s ease both">
-    <div style="font-size:56px;margin-bottom:12px">🕳️</div>
-    <p style="color:#2a2a2a;font-size:15px">الصفحة غير موجودة</p>
+    <!-- Clients list -->
+    <div id="clients-list"></div>
+    <div id="empty-msg" class="empty" style="display:none">أضف أول زبون لك! 👆</div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════════════
-//  CONFIG — غيّر كلمة السر هنا فقط
-// ══════════════════════════════════════════════════════════════════════════
-const PASS = "ADMIN2026";
-const BASE = location.origin + location.pathname.replace(/\/?(?:index\.html)?$/,"");
+// ── Config ─────────────────────────────────────────────────────────────────────
+const SUPER_PASS = "ADMIN2026"; // ← غيّر كلمة السر هنا
+const STORAGE_KEY = "vip_clients_v3";
+const BASE_URL = window.location.origin + window.location.pathname;
 
-// ══ JSONBin API ════════════════════════════════════════════════════════════
-// JSONBin: قاعدة بيانات JSON مجانية على السحابة
-// الفكرة: كل زبون له "bin" خاص = URL ثابت = بياناته يمكن تحديثها
-const JBIN  = "https://api.jsonbin.io/v3";
-let API_KEY = null;
-
-function getKey() { return localStorage.getItem("vip_jbin_key"); }
-function setKey(k){ localStorage.setItem("vip_jbin_key", k); API_KEY = k; }
-
-// جيب بيانات زبون من jsonbin
-async function fetchClient(binId) {
-  const r = await fetch(`${JBIN}/b/${binId}/latest`, {
-    headers: { "X-Master-Key": getKey(), "X-Bin-Meta": "false" }
-  });
-  if (!r.ok) return null;
-  return await r.json();
+// ── Data ───────────────────────────────────────────────────────────────────────
+function loadClients() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveClients(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
-// أنشئ bin جديد للزبون
-async function createBin(data) {
-  const r = await fetch(`${JBIN}/b`, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "X-Master-Key": getKey(),
-      "X-Bin-Name": data.slug,
-      "X-Bin-Private": "false"    // مهم: عشان أي شخص يقدر يقرأه
-    },
-    body: JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error("Create failed");
-  const j = await r.json();
-  return j.metadata.id;  // هذا هو الـ bin ID
+// ── Router ─────────────────────────────────────────────────────────────────────
+function getSlug() {
+  const h = window.location.hash;
+  if (h.startsWith("#/u/")) return h.slice(4);
+  return null;
 }
+function isAdmin() { return window.location.hash === "#/admin"; }
 
-// حدّث بيانات bin موجود
-async function updateBin(binId, data) {
-  const r = await fetch(`${JBIN}/b/${binId}`, {
-    method:"PUT",
-    headers:{
-      "Content-Type":"application/json",
-      "X-Master-Key": getKey()
-    },
-    body: JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error("Update failed");
-}
-
-// احذف bin
-async function deleteBin(binId) {
-  await fetch(`${JBIN}/b/${binId}`, {
-    method:"DELETE",
-    headers:{ "X-Master-Key": getKey() }
-  });
-}
-
-// ══ Local Index (نخزن قائمة الزبائن محلياً عند الأدمن) ════════════════════
-// الـ index: { slug → binId }
-// الزبون يفتح: ?u=slug → نجيب الـ binId من الـ URL مباشرة
-// الفكرة: نخزن {slug, binId} في كل رابط ← الرابط = slug+binId مفصولين
-// مثال: ?u=amir_679abc123  ← slug=amir, binId=679abc123
-
-function parseU(u) {
-  // u = "amir_679abc123"
-  const i = u.lastIndexOf("_");
-  if (i < 1) return null;
-  return { slug: u.slice(0,i), binId: u.slice(i+1) };
-}
-function makeU(slug, binId) { return `${slug}_${binId}`; }
-function clientURL(slug, binId) { return `${BASE}/?u=${makeU(slug,binId)}`; }
-
-// الـ index المحلي للأدمن
-function loadIndex() { try{ return JSON.parse(localStorage.getItem("vip_idx"))||[]; }catch{return[];} }
-function saveIndex(a){ localStorage.setItem("vip_idx", JSON.stringify(a)); }
-
-// ══ Views ══════════════════════════════════════════════════════════════════
 function show(id) {
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo(0,0);
+  ["view-home","view-login","view-admin","view-profile","view-404"]
+    .forEach(v => {
+      const el = document.getElementById(v);
+      el.style.display = "none";
+    });
+  const target = document.getElementById(id);
+  target.style.display = "flex";
 }
 
-// ══ Router ════════════════════════════════════════════════════════════════
-async function route() {
-  const p   = new URLSearchParams(location.search);
-  const u   = p.get("u");
-  const adm = p.get("admin");
-
-  if (u) {
-    show("view-loading");
-    const parsed = parseU(u);
-    if (!parsed) { show("view-404"); return; }
-    const k = getKey();
-    if (!k) { show("view-404"); return; }
-    try {
-      const data = await fetchClient(parsed.binId);
-      if (data) {
-        show("view-profile");
-        renderProfile(data, document.getElementById("view-profile"));
-        document.title = `${data.nameAr||""} | VIP`;
-      } else { show("view-404"); }
-    } catch(e) { show("view-404"); }
+function route() {
+  const slug = getSlug();
+  if (slug) {
+    const clients = loadClients();
+    const client = clients.find(c => c.slug === slug);
+    if (client) { show("view-profile"); renderProfile(client, document.getElementById("view-profile")); }
+    else show("view-404");
     return;
   }
-
-  if (adm === "1") {
-    if (!getKey()) { show("view-setup"); return; }
-    if (sessionStorage.getItem("ok")==="1") {
-      show("view-admin"); renderList();
-    } else { show("view-login"); }
+  if (isAdmin()) {
+    if (sessionStorage.getItem("admin_ok") === "1") { show("view-admin"); renderList(); }
+    else show("view-login");
     return;
   }
-
   show("view-home");
 }
 
-function go(qs) {
-  history.pushState({},"",[BASE,"/?",qs].join(""));
-  route();
-}
-window.addEventListener("popstate", route);
+window.addEventListener("hashchange", route);
+window.addEventListener("DOMContentLoaded", route);
 
-// ══ Setup ══════════════════════════════════════════════════════════════════
-async function setupDB() {
-  const k = document.getElementById("cfg-key").value.trim();
-  if (!k || k.length < 10) {
-    document.getElementById("cfg-err").textContent = "أدخل المفتاح الصحيح";
-    document.getElementById("cfg-err").style.display = "block";
-    return;
-  }
-  document.getElementById("cfg-btn").textContent = "جاري التحقق...";
-  document.getElementById("cfg-btn").disabled = true;
+// ── Auth ───────────────────────────────────────────────────────────────────────
+function goAdmin() { window.location.hash = "#/admin"; }
 
-  // نتحقق من المفتاح بإنشاء bin تجريبي
-  try {
-    const r = await fetch(`${JBIN}/b`, {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "X-Master-Key": k,
-        "X-Bin-Name": "vip-test",
-        "X-Bin-Private": "false"
-      },
-      body: JSON.stringify({test:true})
-    });
-    if (!r.ok) throw new Error();
-    const j = await r.json();
-    // نحذف التجريبي
-    await fetch(`${JBIN}/b/${j.metadata.id}`,{method:"DELETE",headers:{"X-Master-Key":k}});
-    setKey(k);
-    toast("✅ تم الإعداد بنجاح!");
-    sessionStorage.setItem("ok","1");
-    setTimeout(() => { history.replaceState({},"",[BASE,"/?admin=1"].join("")); route(); }, 800);
-  } catch(e) {
-    document.getElementById("cfg-err").textContent = "❌ المفتاح غلط — تأكد منه";
-    document.getElementById("cfg-err").style.display = "block";
-    document.getElementById("cfg-btn").textContent = "✅ تهيئة قاعدة البيانات";
-    document.getElementById("cfg-btn").disabled = false;
-  }
-}
-
-// ══ Auth ══════════════════════════════════════════════════════════════════
-function login() {
-  const v = document.getElementById("pw").value;
-  if (v === PASS) {
-    sessionStorage.setItem("ok","1");
+function checkPw() {
+  const v = document.getElementById("pw-input").value;
+  if (v === SUPER_PASS) {
+    sessionStorage.setItem("admin_ok","1");
     document.getElementById("pw-err").style.display="none";
-    document.getElementById("pw").value="";
-    history.replaceState({},"",[BASE,"/?admin=1"].join(""));
     show("view-admin"); renderList();
   } else {
     document.getElementById("pw-err").style.display="block";
-    document.getElementById("pw").value="";
-    const b = document.querySelector(".login-box");
-    b.style.transform="translateX(-8px)";
-    setTimeout(()=>b.style.transform="translateX(8px)",80);
-    setTimeout(()=>b.style.transform="",160);
   }
 }
 
-// ══ Admin List ════════════════════════════════════════════════════════════
-let clients = [];
+// ── Profile Renderer ───────────────────────────────────────────────────────────
+function renderProfile(c, container) {
+  const socials = [
+    {key:"wa", cls:"fab fa-whatsapp",      href: c.wa ? `https://wa.me/${c.wa}` : null},
+    {key:"ig", cls:"fab fa-instagram",      href: c.ig ? `https://instagram.com/${c.ig.replace("@","")}` : null},
+    {key:"tg", cls:"fab fa-telegram-plane", href: c.tg ? `https://t.me/${c.tg.replace("@","")}` : null},
+    {key:"fb", cls:"fab fa-facebook-f",     href: c.fb || null},
+  ].filter(s=>s.href);
 
+  // نجوم عشوائية
+  let stars = "";
+  for(let i=0;i<18;i++){
+    const x=Math.random()*100, y=Math.random()*100;
+    const s=Math.random()*3+1, d=Math.random()*3;
+    stars+=`<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${d}s"></div>`;
+  }
+
+  const photoHTML = c.photo
+    ? `<img src="${c.photo}" alt="">`
+    : `<i class="fa-solid fa-user"></i>`;
+
+  const bioHTML = c.bio
+    ? `<p class="p-bio">${c.bio}</p>` : "";
+
+  const socialHTML = socials.map(s=>
+    `<a href="${s.href}" target="_blank" rel="noreferrer"><i class="${s.cls}"></i></a>`
+  ).join("");
+
+  container.innerHTML = `
+    ${stars}
+    <div class="avatar-wrap">
+      <div class="ring"></div>
+      <div class="ring-gap"></div>
+      <div class="avatar-inner">${photoHTML}</div>
+    </div>
+    <h1 class="p-name-ar">${c.nameAr}</h1>
+    <h2 class="p-name-en">${c.nameEn}</h2>
+    <p class="p-tag">Link-in-bio</p>
+    ${bioHTML}
+    ${socials.length ? `<div class="social-row">${socialHTML}</div>` : ""}
+  `;
+}
+
+// ── Preview Modal ──────────────────────────────────────────────────────────────
+function openPreview(id) {
+  const clients = loadClients();
+  const c = clients.find(x=>x.id===id);
+  if(!c) return;
+  const wrap = document.getElementById("preview-profile-wrap");
+  renderProfile(c, wrap);
+  document.getElementById("preview-modal").classList.add("open");
+}
+function closePreview() {
+  document.getElementById("preview-modal").classList.remove("open");
+}
+
+// ── Admin List ─────────────────────────────────────────────────────────────────
 function renderList() {
-  clients = loadIndex();
-  document.getElementById("cnt").textContent = `${clients.length} زبون مسجل`;
-  document.getElementById("srch-wrap").style.display = clients.length>2?"block":"none";
-  drawList(clients);
-}
+  const clients = loadClients();
+  const q = (document.getElementById("search-input")||{}).value || "";
+  const filtered = clients.filter(c =>
+    c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q)
+  );
 
-function filterC() {
-  const q = document.getElementById("srch").value.toLowerCase();
-  drawList(clients.filter(c=>!q||c.slug.includes(q)||(c.nameAr||"").includes(q)));
-}
+  document.getElementById("clients-count").textContent = `${clients.length} زبون مسجل`;
+  document.getElementById("search-box").style.display = clients.length ? "block" : "none";
 
-function drawList(arr) {
-  const box   = document.getElementById("list");
-  const empty = document.getElementById("empty");
-  if (!arr.length) { box.innerHTML=""; empty.style.display="block"; return; }
-  empty.style.display="none";
+  const list = document.getElementById("clients-list");
+  if(filtered.length===0){ list.innerHTML=""; document.getElementById("empty-msg").style.display="block"; return; }
+  document.getElementById("empty-msg").style.display="none";
 
-  box.innerHTML = arr.map((c,i)=>{
-    const url = clientURL(c.slug, c.binId);
+  list.innerHTML = filtered.map(c => {
+    const link = `${BASE_URL}#/u/${c.slug}`;
+    const avatarHTML = c.photo
+      ? `<img src="${c.photo}" alt="" style="width:100%;height:100%;object-fit:cover">`
+      : `<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>`;
     return `
-    <div class="card" style="animation-delay:${i*.04}s">
-      <div class="ctop">
-        <div class="cav">
-          ${c.photo?`<img src="${c.photo}" alt="" loading="lazy">`:`<i class="fa-solid fa-user" style="color:var(--gold);font-size:18px"></i>`}
-        </div>
+    <div class="client-card" id="card-${c.id}">
+      <div class="client-top">
+        <div class="client-avatar">${avatarHTML}</div>
         <div style="flex:1;min-width:0">
-          <p style="color:#fff;font-weight:700;font-size:14px;margin-bottom:2px;
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nameAr||c.slug}</p>
-          <p style="color:#444;font-size:11px">${c.nameEn||""}</p>
+          <p style="color:#fff;font-weight:700;font-size:15px;margin-bottom:2px">${c.nameAr}</p>
+          <p style="color:#555;font-size:12px">${c.nameEn}</p>
         </div>
-        <button class="btn" onclick="openPrev('${c.binId}')"
-          style="color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.07)">
-          👁️
-        </button>
+        <button class="btn-sm" style="color:var(--gold);border-color:var(--border);
+          background:rgba(201,168,76,.08)" onclick="openPreview('${c.id}')">👁️ معاينة</button>
       </div>
 
-      <div class="lnk-box">
-        <label>🔗 رابط البايو — ثابت على كل الأجهزة</label>
-        <code id="lnk-${c.binId}">${url}</code>
-        <p class="lnk-note">✅ يمكن تعديل البيانات والرابط ما يتغير</p>
+      <div class="link-box">
+        <p>رابط الزبون الخاص — أرسله له مباشرة 🔗</p>
+        <code>${link}</code>
       </div>
 
-      <div class="cacts">
-        <button class="btn" id="cb-${c.binId}" onclick="copyC('${c.binId}','${c.slug}')"
-          style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.07)">
+      <div class="client-actions">
+        <button class="btn-sm" id="copy-btn-${c.id}"
+          style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.08)"
+          onclick="copyLink('${c.slug}','${c.id}')">
           📋 نسخ الرابط
         </button>
-        <button class="btn" onclick="editC('${c.binId}')"
-          style="flex:1;color:#888;border-color:#252525;background:#111">✏️ تعديل</button>
-        <button class="btn" onclick="toggleDel('${c.binId}')"
-          style="flex:1;color:#e55;border-color:rgba(229,85,85,.2);background:rgba(229,85,85,.06)">🗑️</button>
+        <button class="btn-sm" style="flex:1;color:#aaa;border-color:#2a2a2a;background:#111"
+          onclick="editClient('${c.id}')">✏️ تعديل</button>
+        <button class="btn-sm" style="flex:1;color:#e55;border-color:rgba(229,85,85,.2);background:rgba(229,85,85,.06)"
+          onclick="confirmDelete('${c.id}')">🗑️</button>
       </div>
 
-      <div id="del-${c.binId}" class="del-box">
-        <p style="color:#e55;margin-bottom:10px;font-size:13px">
-          حذف <strong>${c.nameAr||c.slug}</strong>؟
+      <div id="del-confirm-${c.id}" class="del-confirm" style="display:none">
+        <p style="color:#e55;margin-bottom:12px;font-size:13px">
+          حذف <strong>${c.nameAr}</strong>؟
         </p>
         <div style="display:flex;gap:8px">
-          <button onclick="deleteC('${c.binId}')"
-            style="flex:1;background:#d44;border:none;border-radius:9px;padding:10px;
-            color:#fff;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;
-            -webkit-appearance:none">نعم احذف</button>
-          <button onclick="toggleDel('${c.binId}')"
-            style="flex:1;background:#141414;border:1px solid #222;border-radius:9px;
-            padding:10px;color:#888;cursor:pointer;font-family:'Tajawal',sans-serif;
-            -webkit-appearance:none">إلغاء</button>
+          <button style="flex:1;background:#e55;border:none;border-radius:9px;padding:10px;
+            color:#fff;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif"
+            onclick="deleteClient('${c.id}')">نعم، احذف</button>
+          <button style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9px;
+            padding:10px;color:#aaa;cursor:pointer;font-family:'Tajawal',sans-serif"
+            onclick="document.getElementById('del-confirm-${c.id}').style.display='none'">إلغاء</button>
         </div>
       </div>
     </div>`;
   }).join("");
 }
 
-// ══ Copy ══════════════════════════════════════════════════════════════════
-function copyC(binId, slug) {
-  const c   = clients.find(x=>x.binId===binId);
-  const url = clientURL(c.slug, binId);
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(()=>copied(binId)).catch(()=>fbCopy(url,binId));
-  } else fbCopy(url,binId);
-}
-function fbCopy(t,id) {
-  const ta=document.createElement("textarea");
-  ta.value=t;ta.style.cssText="position:fixed;left:-9999px;top:50%;font-size:16px;opacity:0";
-  document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,99999);
-  try{document.execCommand("copy");copied(id);}catch(e){}
-  document.body.removeChild(ta);
-}
-function copied(id) {
-  const b=document.getElementById(`cb-${id}`);
-  if(b){b.textContent="✅ تم!";b.style.color="#4caf50";b.style.borderColor="#4caf50";
-    setTimeout(()=>{b.textContent="📋 نسخ الرابط";b.style.color="var(--gold)";b.style.borderColor="var(--border)";},3000);}
-  toast("✅ أرسل الرابط للزبون!");
+// ── Copy ───────────────────────────────────────────────────────────────────────
+function copyLink(slug, id) {
+  const url = `${BASE_URL}#/u/${slug}`;
+  navigator.clipboard.writeText(url).catch(()=>{});
+  const btn = document.getElementById(`copy-btn-${id}`);
+  btn.textContent = "✅ تم النسخ!";
+  btn.style.color = "#4caf50";
+  btn.style.borderColor = "#4caf50";
+  showToast("✅ تم نسخ رابط الزبون!");
+  setTimeout(()=>{ btn.textContent="📋 نسخ الرابط"; btn.style.color="var(--gold)"; btn.style.borderColor="var(--border)"; },3000);
 }
 
-// ══ Delete ════════════════════════════════════════════════════════════════
-function toggleDel(id) {
-  const el=document.getElementById(`del-${id}`);
-  el.style.display=el.style.display==="block"?"none":"block";
-}
-async function deleteC(binId) {
-  try { await deleteBin(binId); } catch(e){}
-  saveIndex(loadIndex().filter(c=>c.binId!==binId));
-  toast("🗑️ تم الحذف"); renderList();
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2500);
 }
 
-// ══ Preview ═══════════════════════════════════════════════════════════════
-async function openPrev(binId) {
-  // نجيب البيانات من الـ bin مباشرة
-  show("view-admin"); // ما نخرج من الأدمن
-  try {
-    const data = await fetchClient(binId);
-    if (data) {
-      renderProfile(data, document.getElementById("prev-wrap"));
-      document.getElementById("prev-modal").classList.add("open");
-      document.body.style.overflow="hidden";
-    }
-  } catch(e) { toast("❌ خطأ في المعاينة"); }
+// ── Delete ─────────────────────────────────────────────────────────────────────
+function confirmDelete(id) {
+  document.getElementById(`del-confirm-${id}`).style.display="block";
 }
-function closePrev() {
-  document.getElementById("prev-modal").classList.remove("open");
-  document.body.style.overflow="";
+function deleteClient(id) {
+  let clients = loadClients().filter(c=>c.id!==id);
+  saveClients(clients); renderList();
 }
 
-// ══ Form ══════════════════════════════════════════════════════════════════
-function showForm() {
+// ── Form ───────────────────────────────────────────────────────────────────────
+function showAddForm() {
   clearForm();
-  document.getElementById("form-ttl").textContent="➕ زبون جديد";
-  document.getElementById("f-slug").removeAttribute("disabled");
-  document.getElementById("form-wrap").style.display="block";
-  setTimeout(()=>document.getElementById("form-wrap").scrollIntoView({behavior:"smooth"}),60);
+  document.getElementById("form-title").textContent = "➕ إضافة زبون جديد";
+  document.getElementById("f-edit-id").value = "";
+  document.getElementById("client-form").style.display = "block";
+  document.getElementById("client-form").scrollIntoView({behavior:"smooth"});
 }
 
-async function editC(binId) {
-  const idx = loadIndex().find(x=>x.binId===binId);
-  if (!idx) return;
+function editClient(id) {
+  const c = loadClients().find(x=>x.id===id);
+  if(!c) return;
   clearForm();
-  // نجيب البيانات الحالية
-  try {
-    const data = await fetchClient(binId);
-    if (!data) { toast("❌ خطأ في التحميل"); return; }
-    document.getElementById("form-ttl").textContent="✏️ تعديل بيانات الزبون";
-    document.getElementById("f-id").value = binId;
-    document.getElementById("f-slug").value = idx.slug;
-    document.getElementById("f-slug").setAttribute("disabled","true");
-    document.getElementById("slug-prev-txt").textContent = clientURL(idx.slug, binId);
-    document.getElementById("slug-prev").style.display="block";
-    const s=(k,v)=>{const e=document.getElementById(k);if(e)e.value=v||"";};
-    s("f-ar",data.nameAr);s("f-en",data.nameEn);s("f-bio",data.bio);
-    s("f-wa",data.wa);s("f-ig",data.ig);s("f-tg",data.tg);s("f-fb",data.fb);
-    if(data.photo)setPhoto(data.photo);
-    document.getElementById("form-wrap").style.display="block";
-    setTimeout(()=>document.getElementById("form-wrap").scrollIntoView({behavior:"smooth"}),60);
-  } catch(e) { toast("❌ خطأ في التحميل"); }
+  document.getElementById("form-title").textContent = "✏️ تعديل الزبون";
+  document.getElementById("f-edit-id").value = id;
+  document.getElementById("f-nameAr").value = c.nameAr||"";
+  document.getElementById("f-nameEn").value = c.nameEn||"";
+  document.getElementById("f-slug").value   = c.slug||"";
+  document.getElementById("f-bio").value    = c.bio||"";
+  document.getElementById("f-wa").value     = c.wa||"";
+  document.getElementById("f-ig").value     = c.ig||"";
+  document.getElementById("f-tg").value     = c.tg||"";
+  document.getElementById("f-fb").value     = c.fb||"";
+  if(c.photo) setPhotoPreview(c.photo);
+  updateSlugPreview();
+  document.getElementById("client-form").style.display = "block";
+  document.getElementById("client-form").scrollIntoView({behavior:"smooth"});
 }
 
 function cancelForm() {
   clearForm();
-  document.getElementById("form-wrap").style.display="none";
+  document.getElementById("client-form").style.display="none";
 }
 
 function clearForm() {
-  ["f-ar","f-en","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-ph","f-id"]
-    .forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
-  try{document.getElementById("f-ph-inp").value="";}catch(e){}
-  document.getElementById("f-slug").removeAttribute("disabled");
-  document.getElementById("slug-prev").style.display="none";
+  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb"].forEach(id=>{
+    document.getElementById(id).value="";
+  });
+  document.getElementById("f-photo").value="";
+  document.getElementById("f-edit-id").value="";
+  document.getElementById("slug-preview").style.display="none";
   document.getElementById("slug-err").style.display="none";
-  const t=document.getElementById("ph-thumb");
-  t.innerHTML=`<i class="fa-solid fa-user" style="color:#2a2a2a;font-size:20px"></i>`;
-  t.style.border="2px dashed #2a2a2a";
-  document.getElementById("ph-btn").textContent="رفع صورة 📤";
-  document.getElementById("ph-rm").style.display="none";
-  document.getElementById("form-loading").style.display="none";
-  document.getElementById("form-btns").style.display="flex";
+  document.getElementById("f-photo-input").value="";
+  const wrap = document.getElementById("photo-thumb-wrap");
+  wrap.innerHTML=`<i class="fa-solid fa-user" style="color:#333;font-size:22px" id="photo-placeholder"></i>`;
+  wrap.style.border="2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent="رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display="none";
 }
 
-function previewSlug() {
-  const s=document.getElementById("f-slug").value.trim();
-  const pv=document.getElementById("slug-prev");
-  if(s){
-    document.getElementById("slug-prev-txt").textContent=`${BASE}/?u=${s}_[ID]`;
-    pv.style.display="block";
-  } else pv.style.display="none";
-}
+function saveClient() {
+  const nameAr = document.getElementById("f-nameAr").value.trim();
+  const nameEn = document.getElementById("f-nameEn").value.trim();
+  const slug   = document.getElementById("f-slug").value.trim().toLowerCase();
+  const bio    = document.getElementById("f-bio").value.trim();
+  const wa     = document.getElementById("f-wa").value.trim();
+  const ig     = document.getElementById("f-ig").value.trim();
+  const tg     = document.getElementById("f-tg").value.trim();
+  const fb     = document.getElementById("f-fb").value.trim();
+  const photo  = document.getElementById("f-photo").value;
+  const editId = document.getElementById("f-edit-id").value;
 
-async function saveClient() {
-  const g=id=>(document.getElementById(id).value||"").trim();
-  const slug = g("f-slug").toLowerCase().replace(/[^a-z0-9_-]/g,"");
-  const nameAr = g("f-ar");
-  const binId  = g("f-id"); // موجود = تعديل، فارغ = إضافة
+  // Validate slug
+  if(!slug){ showSlugErr("الرابط مطلوب"); return; }
+  if(!/^[a-z0-9_-]+$/.test(slug)){ showSlugErr("أحرف إنكليزية صغيرة وأرقام فقط"); return; }
+  document.getElementById("slug-err").style.display="none";
 
-  if (!slug)   { showErr("الرابط مطلوب"); return; }
-  if (!nameAr) { showErr("الاسم بالعربي مطلوب"); return; }
+  let clients = loadClients();
 
-  const entry = {
-    slug, nameAr, nameEn:g("f-en"), bio:g("f-bio"),
-    wa:g("f-wa"), ig:g("f-ig").replace(/^@/,""), tg:g("f-tg").replace(/^@/,""),
-    fb:g("f-fb"), photo:document.getElementById("f-ph").value,
-    updatedAt: new Date().toISOString()
-  };
-
-  // إخفاء الأزرار وإظهار اللودر
-  document.getElementById("form-btns").style.display="none";
-  document.getElementById("form-loading").style.display="block";
-
-  try {
-    if (binId) {
-      // تعديل bin موجود
-      await updateBin(binId, entry);
-      // حدّث الـ index المحلي
-      const idx = loadIndex();
-      const updated = idx.map(c=>c.binId===binId?{...c,...entry}:c);
-      saveIndex(updated);
-      toast("✅ تم التعديل — الرابط محدّث فوراً على كل الأجهزة!");
-    } else {
-      // إضافة جديدة — أنشئ bin
-      const newBinId = await createBin(entry);
-      const idx = loadIndex();
-      // تحقق من تكرار الـ slug
-      if (idx.find(c=>c.slug===slug)) {
-        showErr("هذا الرابط مستخدم — اختر آخر");
-        document.getElementById("form-btns").style.display="flex";
-        document.getElementById("form-loading").style.display="none";
-        return;
-      }
-      idx.push({slug, binId:newBinId, nameAr, nameEn:g("f-en"), photo:entry.photo});
-      saveIndex(idx);
-      toast("✅ تمت الإضافة!");
-    }
-    cancelForm();
-    renderList();
-  } catch(e) {
-    document.getElementById("form-btns").style.display="flex";
-    document.getElementById("form-loading").style.display="none";
-    toast("❌ خطأ — تأكد من الإنترنت");
-  }
-}
-
-function showErr(msg) {
-  const e=document.getElementById("slug-err");
-  e.textContent=msg; e.style.display="block";
-}
-
-// ══ Profile Renderer ══════════════════════════════════════════════════════
-function renderProfile(c, el) {
-  const ig=(c.ig||"").replace(/^@/,"").trim();
-  const tg=(c.tg||"").replace(/^@/,"").trim();
-  const wa=(c.wa||"").replace(/\D/g,"");
-  const fb=c.fb?(c.fb.startsWith("http")?c.fb:`https://facebook.com/${c.fb}`):"";
-
-  const lnks=[];
-  if(wa)lnks.push({cls:"fab fa-whatsapp",     act:`window.open('https://wa.me/${wa}','_blank')`});
-  if(ig)lnks.push({cls:"fab fa-instagram",    act:`openIG('${ig}')`});
-  if(tg)lnks.push({cls:"fab fa-telegram-plane",act:`openTG('${tg}')`});
-  if(fb)lnks.push({cls:"fab fa-facebook-f",   act:`window.open('${fb}','_blank')`});
-
-  let stars="";
-  for(let i=0;i<18;i++){
-    const x=(Math.random()*100).toFixed(1),y=(Math.random()*100).toFixed(1);
-    const s=(Math.random()*2.5+1).toFixed(1),d=(Math.random()*3).toFixed(1);
-    stars+=`<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation:sparkle ${(2.5+Math.random()*2).toFixed(1)}s ${d}s ease-in-out infinite"></div>`;
+  // Check duplicate slug
+  if(clients.find(c=>c.slug===slug && c.id!==editId)){
+    showSlugErr("هذا الرابط موجود مسبقاً، اختر رابطاً آخر"); return;
   }
 
-  el.innerHTML=`
-    ${stars}
-    <div class="ring-wrap">
-      <div class="ring"></div><div class="ring-gap"></div>
-      <div class="ring-inner">
-        ${c.photo?`<img src="${c.photo}" alt="${c.nameAr||""}" loading="eager">`:`<i class="fa-solid fa-user"></i>`}
-      </div>
-    </div>
-    <h1 class="name-ar">${c.nameAr||""}</h1>
-    <h2 class="name-en">${c.nameEn||""}</h2>
-    <p class="bio-tag">Link-in-bio</p>
-    ${c.bio?`<p class="bio-text">${c.bio}</p>`:""}
-    ${lnks.length?`<div class="soc-row">${lnks.map(l=>`<a href="javascript:void(0)" onclick="${l.act}"><i class="${l.cls}"></i></a>`).join("")}</div>`:""}
-  `;
-}
-
-// فتح التطبيقات
-function openIG(u){tryApp(`instagram://user?username=${u}`,`https://instagram.com/${u}/`);}
-function openTG(u){tryApp(`tg://resolve?domain=${u}`,`https://t.me/${u}`);}
-function tryApp(app,web){const t=Date.now();window.location.href=app;setTimeout(()=>{if(Date.now()-t<2500)window.open(web,"_blank");},1800);}
-
-// ══ Photo ══════════════════════════════════════════════════════════════════
-function pickPhoto(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      const c=document.createElement("canvas");
-      const M=320;let w=img.width,h=img.height;
-      if(w>M||h>M){if(w>h){h=Math.round(h*M/w);w=M;}else{w=Math.round(w*M/h);h=M;}}
-      c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);
-      setPhoto(c.toDataURL("image/jpeg",.78));
-    };
-    img.src=ev.target.result;
-  };
-  r.readAsDataURL(f);
-}
-function setPhoto(src){
-  document.getElementById("f-ph").value=src;
-  const t=document.getElementById("ph-thumb");
-  t.style.border="2px solid var(--gold)";
-  t.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover">`;
-  document.getElementById("ph-btn").textContent="تغيير 🔄";
-  document.getElementById("ph-rm").style.display="block";
-}
-function removePhoto(){
-  document.getElementById("f-ph").value="";
-  try{document.getElementById("f-ph-inp").value="";}catch(e){}
-  const t=document.getElementById("ph-thumb");
-  t.innerHTML=`<i class="fa-solid fa-user" style="color:#2a2a2a;font-size:20px"></i>`;
-  t.style.border="2px dashed #2a2a2a";
-  document.getElementById("ph-btn").textContent="رفع صورة 📤";
-  document.getElementById("ph-rm").style.display="none";
-}
-
-// ══ Toast ══════════════════════════════════════════════════════════════════
-function toast(msg){
-  const el=document.getElementById("toast");
-  el.textContent=msg;el.classList.add("show");
-  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),3200);
-}
-
-// ══ PWA ════════════════════════════════════════════════════════════════════
-let dp=null;
-(function initPWA(){
-  const sa=window.matchMedia("(display-mode:standalone)").matches||navigator.standalone===true;
-  if(sa)return;
-  if(/iphone|ipad|ipod/i.test(navigator.userAgent)){
-    setTimeout(()=>{
-      if(!sessionStorage.getItem("ih")){
-        document.getElementById("ios-hint").style.display="block";
-        sessionStorage.setItem("ih","1");
-      }
-    },4000);
+  if(editId) {
+    clients = clients.map(c=>c.id===editId?{...c,nameAr,nameEn,slug,bio,wa,ig,tg,fb,photo}:c);
   } else {
-    window.addEventListener("beforeinstallprompt",e=>{
-      e.preventDefault();dp=e;
-      setTimeout(()=>{/* optional banner */},3000);
-    });
+    clients.push({id:Date.now().toString(),nameAr,nameEn,slug,bio,wa,ig,tg,fb,photo});
   }
-})();
 
-// ══ Boot ══════════════════════════════════════════════════════════════════
-API_KEY = getKey();
-route();
-if("serviceWorker"in navigator)
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+  saveClients(clients);
+  cancelForm();
+  renderList();
+  showToast(editId?"✅ تم التعديل!":"✅ تمت الإضافة!");
+}
 
-// expose globals
-window.setupDB=setupDB; window.login=login; window.go=go;
-window.showForm=showForm; window.cancelForm=cancelForm;
-window.saveClient=saveClient; window.previewSlug=previewSlug;
-window.copyC=copyC; window.editC=editC; window.deleteC=deleteC;
-window.toggleDel=toggleDel; window.openPrev=openPrev; window.closePrev=closePrev;
-window.pickPhoto=pickPhoto; window.removePhoto=removePhoto;
-window.openIG=openIG; window.openTG=openTG; window.filterC=filterC;
+function showSlugErr(msg) {
+  const el = document.getElementById("slug-err");
+  el.textContent = msg;
+  el.style.display="block";
+}
+
+// ── Slug preview ───────────────────────────────────────────────────────────────
+function updateSlugPreview() {
+  const slug = document.getElementById("f-slug").value.trim().toLowerCase();
+  const prev = document.getElementById("slug-preview");
+  if(slug) {
+    document.getElementById("slug-preview-text").textContent = `${BASE_URL}#/u/${slug}`;
+    prev.style.display="block";
+  } else {
+    prev.style.display="none";
+  }
+}
+
+// ── Photo ──────────────────────────────────────────────────────────────────────
+function handlePhoto(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => setPhotoPreview(ev.target.result);
+  reader.readAsDataURL(file);
+}
+
+function setPhotoPreview(src) {
+  document.getElementById("f-photo").value = src;
+  const wrap = document.getElementById("photo-thumb-wrap");
+  wrap.style.border="2px solid var(--gold)";
+  wrap.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover">`;
+  document.getElementById("photo-btn").textContent="تغيير الصورة 🔄";
+  document.getElementById("photo-remove-btn").style.display="block";
+}
+
+function removePhoto() {
+  document.getElementById("f-photo").value="";
+  document.getElementById("f-photo-input").value="";
+  const wrap = document.getElementById("photo-thumb-wrap");
+  wrap.innerHTML=`<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>`;
+  wrap.style.border="2px dashed #2a2a2a";
+  document.getElementById("photo-btn").textContent="رفع صورة 📤";
+  document.getElementById("photo-remove-btn").style.display="none";
+}
 </script>
 </body>
 </html>
