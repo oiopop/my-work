@@ -331,9 +331,14 @@ function saveClients(list) {
 }
 
 // ── Router ─────────────────────────────────────────────────────────────────────
-function getSlug() {
+function getHashParts() {
   const h = window.location.hash;
-  if (h.startsWith("#/u/")) return h.slice(4);
+  if (h.startsWith("#/u/")) {
+    const rest = h.slice(4);
+    const sep  = rest.indexOf("|");
+    if (sep !== -1) return { slug: rest.slice(0, sep), data: rest.slice(sep + 1) };
+    return { slug: rest, data: null };
+  }
   return null;
 }
 function isAdmin() { return window.location.hash === "#/admin"; }
@@ -349,10 +354,18 @@ function show(id) {
 }
 
 function route() {
-  const slug = getSlug();
-  if (slug) {
-    const clients = loadClients();
-    const client = clients.find(c => c.slug === slug);
+  const parts = getHashParts();
+  if (parts) {
+    let client = null;
+    // اولاً: فك تشفير البيانات من الرابط نفسه
+    if (parts.data) {
+      try { client = JSON.parse(decodeURIComponent(atob(parts.data))); } catch(e) { client = null; }
+    }
+    // ثانياً: اذا ما في بيانات في الرابط، ابحث في localStorage (للأدمن نفسه)
+    if (!client) {
+      const clients = loadClients();
+      client = clients.find(c => c.slug === parts.slug) || null;
+    }
     if (client) { show("view-profile"); renderProfile(client, document.getElementById("view-profile")); }
     else show("view-404");
     return;
@@ -456,7 +469,7 @@ function renderList() {
   document.getElementById("empty-msg").style.display="none";
 
   list.innerHTML = filtered.map(c => {
-    const link = `${BASE_URL}#/u/${c.slug}`;
+    const link = buildClientUrl(c);
     const avatarHTML = c.photo
       ? `<img src="${c.photo}" alt="" style="width:100%;height:100%;object-fit:cover">`
       : `<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>`;
@@ -507,15 +520,43 @@ function renderList() {
 }
 
 // ── Copy ───────────────────────────────────────────────────────────────────────
+function buildClientUrl(c) {
+  // نبني نسخة خفيفة من البيانات بدون الصورة (الصورة base64 كبيرة جداً)
+  const light = { nameAr:c.nameAr, nameEn:c.nameEn, slug:c.slug, bio:c.bio,
+                  wa:c.wa, ig:c.ig, tg:c.tg, fb:c.fb, tt:c.tt, pubg:c.pubg, photo:c.photo };
+  try {
+    const encoded = btoa(encodeURIComponent(JSON.stringify(light)));
+    return `${BASE_URL}#/u/${c.slug}|${encoded}`;
+  } catch(e) {
+    // اذا فشل (مثلاً الصورة كبيرة جداً) ارجع بدون صورة
+    const light2 = { nameAr:c.nameAr, nameEn:c.nameEn, slug:c.slug, bio:c.bio,
+                     wa:c.wa, ig:c.ig, tg:c.tg, fb:c.fb, tt:c.tt, pubg:c.pubg, photo:"" };
+    const encoded2 = btoa(encodeURIComponent(JSON.stringify(light2)));
+    return `${BASE_URL}#/u/${c.slug}|${encoded2}`;
+  }
+}
+
 function copyLink(slug, id) {
-  const url = `${BASE_URL}#/u/${slug}`;
-  navigator.clipboard.writeText(url).catch(()=>{});
+  const clients = loadClients();
+  const c = clients.find(x=>x.id===id);
+  const url = c ? buildClientUrl(c) : `${BASE_URL}#/u/${slug}`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).catch(()=>fallbackCopy(url));
+  } else { fallbackCopy(url); }
   const btn = document.getElementById(`copy-btn-${id}`);
   btn.textContent = "✅ تم النسخ!";
   btn.style.color = "#4caf50";
   btn.style.borderColor = "#4caf50";
   showToast("✅ تم نسخ رابط الزبون!");
   setTimeout(()=>{ btn.textContent="📋 نسخ الرابط"; btn.style.color="var(--gold)"; btn.style.borderColor="var(--border)"; },3000);
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand("copy"); } catch(e){}
+  document.body.removeChild(ta);
 }
 
 function showToast(msg) {
@@ -635,7 +676,7 @@ function updateSlugPreview() {
   const slug = document.getElementById("f-slug").value.trim().toLowerCase();
   const prev = document.getElementById("slug-preview");
   if(slug) {
-    document.getElementById("slug-preview-text").textContent = `${BASE_URL}#/u/${slug}`;
+    document.getElementById("slug-preview-text").textContent = `${BASE_URL}#/u/${slug}|...`;
     prev.style.display="block";
   } else {
     prev.style.display="none";
