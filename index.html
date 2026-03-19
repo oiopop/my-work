@@ -2,66 +2,53 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<!-- ══ PWA + Mobile Meta ══════════════════════════════════════════════════ -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#c9a84c">
 <meta name="mobile-web-app-capable" content="yes">
-<!-- iOS specific -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VIP Links">
 <link rel="apple-touch-icon" href="icons/icon-152.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-<!-- Splash screens iOS -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- Manifest -->
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<!-- ══ Fonts & Icons ══════════════════════════════════════════════════════ -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
 <title>VIP Link-in-Bio</title>
-
 <style>
-/* ══ Reset & Root ════════════════════════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --gold:#c9a84c;--bright:#f1d38e;--dark:#050505;
   --card:#0d0d0d;--border:rgba(201,168,76,0.2);
-  --safe-top:env(safe-area-inset-top);
-  --safe-bot:env(safe-area-inset-bottom);
+  --safe-top:env(safe-area-inset-top,20px);
+  --safe-bot:env(safe-area-inset-bottom,10px);
 }
 html{height:100%;overscroll-behavior:none}
 body{
   font-family:'Tajawal',sans-serif;background:var(--dark);color:#fff;
   min-height:100vh;min-height:-webkit-fill-available;
   overscroll-behavior:none;-webkit-overflow-scrolling:touch;
-  padding-top:var(--safe-top);padding-bottom:var(--safe-bot);
 }
-
-/* ══ Animations ══════════════════════════════════════════════════════════ */
 @keyframes spin    {to{transform:rotate(360deg)}}
-@keyframes fadeUp  {from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse   {0%,100%{box-shadow:0 0 18px rgba(201,168,76,.4)}50%{box-shadow:0 0 36px rgba(201,168,76,.8)}}
-@keyframes sparkle {0%,100%{opacity:.12;transform:scale(1)}50%{opacity:.55;transform:scale(1.5)}}
-@keyframes slideIn {from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeUp  {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse   {0%,100%{box-shadow:0 0 16px rgba(201,168,76,.4)}50%{box-shadow:0 0 34px rgba(201,168,76,.78)}}
+@keyframes sparkle {0%,100%{opacity:.12;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+@keyframes slideIn {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* ══ Views ═══════════════════════════════════════════════════════════════ */
+/* Views */
 .view{display:none;min-height:100vh;min-height:-webkit-fill-available;flex-direction:column}
 .view.active{display:flex}
 
-/* ══ Profile Page ════════════════════════════════════════════════════════ */
+/* ══ Profile ══════════════════════════════════════════════════════════════ */
 #view-profile{
   align-items:center;justify-content:center;
-  padding:60px 24px 40px;text-align:center;
-  position:relative;overflow:hidden;
+  padding:calc(50px + var(--safe-top)) 24px calc(40px + var(--safe-bot));
+  text-align:center;position:relative;overflow:hidden;
   background:radial-gradient(circle at 50% 22%,rgba(201,168,76,.09),transparent 62%),var(--dark);
 }
 .star{position:absolute;border-radius:50%;background:var(--bright);pointer-events:none}
-
-/* Avatar ring */
-.avatar-wrap{position:relative;width:134px;height:134px;margin:0 auto 26px;animation:fadeUp .55s ease both}
+.avatar-wrap{position:relative;width:134px;height:134px;margin:0 auto 24px;animation:fadeUp .55s ease both}
 .ring{position:absolute;inset:-5px;border-radius:50%;
   background:conic-gradient(var(--gold),var(--bright),#7a5c1e,var(--gold));
   animation:spin 8s linear infinite}
@@ -70,19 +57,15 @@ body{
   overflow:hidden;display:flex;align-items:center;justify-content:center}
 .avatar-inner img{width:100%;height:100%;object-fit:cover}
 .avatar-inner .fa-user{font-size:46px;color:var(--gold)}
-
-/* Profile text */
 .p-name-ar{font-size:23px;font-weight:700;color:#fff;margin-bottom:4px;
   animation:fadeUp .62s ease both;text-shadow:0 0 22px rgba(255,255,255,.12)}
 .p-name-en{font-family:'Playfair Display',serif;font-style:italic;font-size:21px;
   color:var(--gold);margin-bottom:10px;animation:fadeUp .68s ease both;
   text-shadow:0 0 14px rgba(201,168,76,.5)}
-.p-tag{color:#666;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;
+.p-tag{color:#555;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;
   margin-bottom:18px;animation:fadeUp .72s ease both}
 .p-bio{color:#555;font-size:13px;max-width:265px;line-height:1.85;
   margin:0 auto 28px;animation:fadeUp .76s ease both}
-
-/* Social buttons */
 .social-row{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;
   animation:fadeUp .8s ease both;padding:0 10px}
 .social-row a{
@@ -90,28 +73,32 @@ body{
   display:flex;align-items:center;justify-content:center;text-decoration:none;
   border:1.5px solid rgba(201,168,76,.3);background:rgba(201,168,76,.05);
   box-shadow:0 0 18px rgba(201,168,76,.3),inset 0 0 10px rgba(201,168,76,.05);
-  animation:pulse 3.5s ease-in-out infinite;transition:transform .2s,background .2s;
-  -webkit-user-select:none;user-select:none
+  animation:pulse 3.5s ease-in-out infinite;
+  -webkit-user-select:none;user-select:none;
+  -webkit-transform:translateZ(0);transform:translateZ(0);
 }
-.social-row a:active{background:rgba(201,168,76,.18);transform:scale(0.92)}
+.social-row a:active{background:rgba(201,168,76,.18);transform:scale(0.9)}
 
-/* ══ Home Page ═══════════════════════════════════════════════════════════ */
-#view-home{align-items:center;justify-content:center;padding:40px 24px;text-align:center}
-.home-content{animation:fadeUp .5s ease both}
+/* ══ Home ════════════════════════════════════════════════════════════════ */
+#view-home{align-items:center;justify-content:center;
+  padding:calc(40px + var(--safe-top)) 24px calc(40px + var(--safe-bot))}
+.home-content{display:flex;flex-direction:column;align-items:center;
+  text-align:center;animation:fadeUp .5s ease both;width:100%}
 
-/* ══ Login Page ══════════════════════════════════════════════════════════ */
-#view-login{align-items:center;justify-content:center;padding:40px 24px}
+/* ══ Login ════════════════════════════════════════════════════════════════ */
+#view-login{align-items:center;justify-content:center;
+  padding:calc(40px + var(--safe-top)) 24px}
 .login-card{background:var(--card);border:1px solid var(--border);border-radius:22px;
   padding:36px 28px;width:100%;max-width:340px;text-align:center;
-  animation:fadeUp .5s ease both;box-shadow:0 0 60px rgba(201,168,76,.06)}
+  animation:fadeUp .5s ease both;box-shadow:0 0 60px rgba(201,168,76,.06);
+  transition:transform .08s}
 
-/* ══ Admin Dashboard ═════════════════════════════════════════════════════ */
+/* ══ Admin ════════════════════════════════════════════════════════════════ */
 #view-admin{background:var(--dark);overflow-y:auto;-webkit-overflow-scrolling:touch}
-.admin-inner{max-width:680px;margin:0 auto;padding:24px 16px 60px}
+.admin-inner{max-width:680px;margin:0 auto;
+  padding:calc(24px + var(--safe-top)) 16px calc(60px + var(--safe-bot))}
 .admin-header{display:flex;align-items:center;justify-content:space-between;
-  padding-bottom:20px;border-bottom:1px solid #111;margin-bottom:20px}
-
-/* ══ Client Card ═════════════════════════════════════════════════════════ */
+  padding-bottom:18px;border-bottom:1px solid #111;margin-bottom:18px}
 .client-card{background:var(--card);border:1px solid #181818;border-radius:18px;
   padding:18px;margin-bottom:14px;animation:slideIn .35s ease both}
 .client-top{display:flex;gap:14px;align-items:center;margin-bottom:14px}
@@ -119,53 +106,47 @@ body{
   border:2px solid var(--border);background:#111;
   display:flex;align-items:center;justify-content:center}
 .client-avatar img{width:100%;height:100%;object-fit:cover}
-.c-actions{display:flex;gap:8px}
-.btn-act{padding:9px 12px;border-radius:10px;cursor:pointer;
+.c-actions{display:flex;gap:7px}
+.btn-act{
+  padding:10px 12px;border-radius:10px;cursor:pointer;
   font-family:'Tajawal',sans-serif;font-size:12px;font-weight:600;
-  border:1px solid;white-space:nowrap;transition:opacity .2s;-webkit-user-select:none}
-.btn-act:active{opacity:.7}
-
-/* Link display box */
+  border:1px solid;white-space:nowrap;-webkit-user-select:none;
+  -webkit-appearance:none;outline:none;
+}
+.btn-act:active{opacity:.6}
 .link-box{background:rgba(201,168,76,.04);border:1px solid var(--border);
-  border-radius:12px;padding:12px 14px;margin-bottom:14px}
+  border-radius:12px;padding:12px 14px;margin-bottom:12px}
 .link-box p{color:#444;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
 .link-box code{color:var(--bright);font-size:11px;word-break:break-all;
   line-height:1.7;display:block;font-family:monospace}
-
-/* Delete confirm */
-.del-confirm{margin-top:12px;background:rgba(229,85,85,.06);
+.del-confirm{margin-top:10px;background:rgba(229,85,85,.06);
   border:1px solid rgba(229,85,85,.2);border-radius:12px;padding:14px;
   text-align:center;display:none}
 
 /* ══ Form ════════════════════════════════════════════════════════════════ */
 .form-card{background:var(--card);border:1px solid var(--border);
-  border-radius:20px;padding:24px;margin-bottom:18px;animation:fadeUp .4s ease both;display:none}
+  border-radius:20px;padding:22px;margin-bottom:16px;
+  animation:fadeUp .4s ease both;display:none}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:right}
 input[type=text],input[type=password]{
   width:100%;background:#050505;border:1px solid #222;border-radius:10px;
-  padding:12px 14px;color:#fff;font-size:15px;font-family:'Tajawal',sans-serif;
-  outline:none;transition:border-color .25s;-webkit-appearance:none;
-  direction:inherit;margin-bottom:10px
+  padding:13px 14px;color:#fff;font-size:15px;font-family:'Tajawal',sans-serif;
+  outline:none;-webkit-appearance:none;transition:border-color .2s;
+  direction:inherit;margin-bottom:10px;-webkit-border-radius:10px;
 }
 input[type=text]:focus,input[type=password]:focus{border-color:var(--gold)}
 input[dir=ltr]{direction:ltr;text-align:left}
-
-/* Slug input with prefix */
 .slug-wrap{position:relative;margin-bottom:8px}
 .slug-prefix{position:absolute;right:12px;top:50%;transform:translateY(-50%);
   color:#444;font-size:12px;font-family:monospace;pointer-events:none;z-index:2}
 #f-slug{padding-left:46px;margin-bottom:0}
-
-/* Slug live preview */
 .slug-preview{background:rgba(201,168,76,.04);border:1px solid var(--border);
   border-radius:10px;padding:11px 14px;margin-bottom:10px;display:none}
-.slug-preview p{color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.slug-preview p{color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
 .slug-preview code{color:var(--bright);font-size:11px;word-break:break-all;
   line-height:1.7;display:block;font-family:monospace}
-
-/* Photo upload */
-.photo-row{display:flex;gap:14px;align-items:center;margin-bottom:20px}
+.photo-row{display:flex;gap:14px;align-items:center;margin-bottom:18px}
 .photo-thumb{width:60px;height:60px;border-radius:50%;overflow:hidden;flex-shrink:0;
   background:#111;display:flex;align-items:center;justify-content:center;
   border:2px dashed #2a2a2a;transition:border-color .25s}
@@ -175,80 +156,77 @@ input[dir=ltr]{direction:ltr;text-align:left}
   width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;
   background:linear-gradient(135deg,#7a5c1e,var(--gold),var(--bright),var(--gold));
   font-family:'Tajawal',sans-serif;font-weight:800;font-size:16px;color:#000;
-  margin-bottom:8px;-webkit-user-select:none;transition:opacity .2s;letter-spacing:.3px
+  margin-bottom:8px;-webkit-user-select:none;-webkit-appearance:none;
+  outline:none;-webkit-border-radius:12px;
 }
-.btn-gold:active{opacity:.8}
+.btn-gold:active{opacity:.78}
 .btn-gray{
   width:100%;padding:14px;border:1px solid #252525;border-radius:12px;cursor:pointer;
   background:#141414;font-family:'Tajawal',sans-serif;font-weight:600;
-  font-size:14px;color:#888;-webkit-user-select:none;transition:background .2s
+  font-size:14px;color:#888;-webkit-user-select:none;-webkit-appearance:none;
+  outline:none;-webkit-border-radius:12px;
 }
 .btn-gray:active{background:#1e1e1e}
 
-/* ══ Toast ═══════════════════════════════════════════════════════════════ */
+/* ══ Toast ════════════════════════════════════════════════════════════════ */
 #toast{
-  position:fixed;bottom:calc(24px + var(--safe-bot));left:50%;
-  transform:translateX(-50%) translateY(80px);
+  position:fixed;bottom:calc(28px + var(--safe-bot));left:50%;
+  transform:translateX(-50%) translateY(90px);
   background:#0d0d0d;border:1px solid var(--border);color:var(--gold);
-  padding:12px 26px;border-radius:50px;font-size:14px;
-  font-family:'Tajawal',sans-serif;transition:transform .32s cubic-bezier(.34,1.56,.64,1);
-  z-index:9999;white-space:nowrap;
-  box-shadow:0 4px 30px rgba(201,168,76,.15)
+  padding:12px 26px;border-radius:50px;font-size:14px;font-weight:600;
+  font-family:'Tajawal',sans-serif;
+  transition:transform .34s cubic-bezier(.34,1.56,.64,1);
+  z-index:9999;white-space:nowrap;pointer-events:none;
+  box-shadow:0 4px 28px rgba(201,168,76,.14)
 }
 #toast.show{transform:translateX(-50%) translateY(0)}
 
-/* ══ PWA Install Banner ══════════════════════════════════════════════════ */
-#install-banner{
-  position:fixed;bottom:0;left:0;right:0;
-  background:#0d0d0d;border-top:1px solid var(--border);
-  padding:14px 20px calc(14px + var(--safe-bot));
-  display:none;align-items:center;gap:12px;z-index:888;
-  animation:fadeUp .4s ease both
-}
-#install-banner img{width:42px;height:42px;border-radius:10px}
-#install-banner .ib-text{flex:1}
-#install-banner .ib-text p{color:#fff;font-size:14px;font-weight:700}
-#install-banner .ib-text span{color:#555;font-size:11px}
-#install-banner button.install-btn{
-  background:linear-gradient(135deg,#7a5c1e,var(--gold));
-  border:none;border-radius:10px;padding:10px 18px;
-  color:#000;font-weight:700;font-size:13px;cursor:pointer;
-  font-family:'Tajawal',sans-serif;white-space:nowrap
-}
-#install-banner button.close-banner{
-  background:none;border:none;color:#444;font-size:20px;cursor:pointer;
-  padding:4px;line-height:1
-}
-
-/* iOS install hint */
+/* ══ iOS hint ════════════════════════════════════════════════════════════ */
 #ios-hint{
   position:fixed;bottom:0;left:0;right:0;
-  background:#0d0d0d;border-top:1px solid var(--border);
-  padding:16px 20px calc(20px + var(--safe-bot));
-  display:none;z-index:888;text-align:center;
-  animation:fadeUp .4s ease both
+  background:#0e0e0e;border-top:1px solid var(--border);
+  padding:18px 20px calc(22px + var(--safe-bot));
+  display:none;z-index:888;text-align:center;animation:fadeUp .4s ease both
 }
-#ios-hint p{color:#888;font-size:13px;line-height:1.8}
+#ios-hint p{color:#888;font-size:13px;line-height:2.1}
 #ios-hint strong{color:var(--gold)}
-#ios-hint .close-banner{
-  background:none;border:none;color:#444;font-size:22px;cursor:pointer;
-  position:absolute;top:12px;left:16px
-}
-/* Arrow pointing down to Safari share */
-#ios-hint::after{
-  content:"▼";position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
-  color:var(--gold);font-size:18px
+.close-hint{
+  position:absolute;top:12px;left:16px;background:none;border:none;
+  color:#444;font-size:26px;cursor:pointer;line-height:1;
+  -webkit-appearance:none;outline:none;padding:4px
 }
 
-/* ══ Preview Modal ═══════════════════════════════════════════════════════ */
+/* ══ Android Banner ══════════════════════════════════════════════════════ */
+#install-banner{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#0e0e0e;border-top:1px solid var(--border);
+  padding:14px 18px calc(14px + var(--safe-bot));
+  display:none;align-items:center;gap:12px;z-index:888
+}
+#install-banner img{width:40px;height:40px;border-radius:10px}
+.ib-text{flex:1}.ib-text p{color:#fff;font-size:14px;font-weight:700}
+.ib-text span{color:#555;font-size:11px}
+.install-btn{
+  background:linear-gradient(135deg,#7a5c1e,var(--gold));border:none;
+  border-radius:10px;padding:10px 18px;color:#000;font-weight:700;
+  font-size:13px;cursor:pointer;font-family:'Tajawal',sans-serif;
+  white-space:nowrap;-webkit-appearance:none;outline:none
+}
+.close-banner-btn{
+  background:none;border:none;color:#444;font-size:22px;
+  cursor:pointer;padding:4px;line-height:1;-webkit-appearance:none;outline:none
+}
+
+/* ══ Preview modal ═══════════════════════════════════════════════════════ */
 #preview-modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:990;
-  display:none;align-items:center;justify-content:center;padding:20px
+  position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:990;
+  display:none;align-items:center;justify-content:center;
+  padding:calc(20px + var(--safe-top)) 16px calc(20px + var(--safe-bot))
 }
 #preview-modal.open{display:flex}
 #preview-inner{
   width:100%;max-width:340px;border-radius:24px;overflow:hidden;
-  border:1px solid var(--border);max-height:88vh;overflow-y:auto;
+  border:1px solid var(--border);max-height:86vh;overflow-y:auto;
   -webkit-overflow-scrolling:touch
 }
 #preview-profile-wrap{
@@ -260,44 +238,40 @@ input[dir=ltr]{direction:ltr;text-align:left}
 
 /* ══ 404 ═════════════════════════════════════════════════════════════════ */
 #view-404{align-items:center;justify-content:center;text-align:center;padding:40px}
-
-/* ══ Empty state ═════════════════════════════════════════════════════════ */
-.empty-state{text-align:center;padding:60px 20px;color:#252525;font-size:15px}
-
-/* ══ Scrollbar ═══════════════════════════════════════════════════════════ */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#222;border-radius:2px}
-
-/* ══ Search ══════════════════════════════════════════════════════════════ */
+.empty-state{text-align:center;padding:50px 20px;color:#252525;font-size:15px}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}
 #search-wrap{margin-bottom:14px;display:none}
+a{-webkit-touch-callout:none}
 </style>
 </head>
 <body>
 
-<!-- ══ TOAST ════════════════════════════════════════════════════════════ -->
 <div id="toast"></div>
 
-<!-- ══ PWA INSTALL BANNER (Android / Desktop) ════════════════════════════ -->
+<!-- iOS Install Hint -->
+<div id="ios-hint">
+  <button class="close-hint" onclick="closeHint()">×</button>
+  <div style="font-size:28px;margin-bottom:8px">📲</div>
+  <p>
+    لتثبيت التطبيق على iPhone:<br>
+    اضغط <strong>زر المشاركة</strong> ⬆️ ثم<br>
+    <strong>إضافة للشاشة الرئيسية ➕</strong>
+  </p>
+</div>
+
+<!-- Android Install Banner -->
 <div id="install-banner">
-  <img src="icons/icon-192.png" alt="VIP">
+  <img src="icons/icon-192.png" alt="">
   <div class="ib-text">
     <p>ثبّت التطبيق</p>
     <span>يشتغل بدون إنترنت</span>
   </div>
   <button class="install-btn" onclick="installPWA()">تثبيت</button>
-  <button class="close-banner" onclick="hideBanner()">×</button>
+  <button class="close-banner-btn" onclick="hideBanner()">×</button>
 </div>
 
-<!-- ══ iOS INSTALL HINT ══════════════════════════════════════════════════ -->
-<div id="ios-hint">
-  <button class="close-banner" onclick="document.getElementById('ios-hint').style.display='none'">×</button>
-  <p>لتثبيت التطبيق على iPhone:<br>
-    اضغط على <strong>زر المشاركة</strong> ثم <strong>إضافة للشاشة الرئيسية</strong>
-  </p>
-</div>
-
-<!-- ══ PREVIEW MODAL ═════════════════════════════════════════════════════ -->
+<!-- Preview Modal -->
 <div id="preview-modal" onclick="closePreview()">
   <div id="preview-inner" onclick="event.stopPropagation()">
     <div id="preview-profile-wrap"></div>
@@ -309,44 +283,38 @@ input[dir=ltr]{direction:ltr;text-align:left}
 
 <!-- ══ HOME ══════════════════════════════════════════════════════════════ -->
 <div id="view-home" class="view">
-  <div class="home-content" style="display:flex;flex-direction:column;align-items:center;
-    justify-content:center;min-height:100vh;padding:40px 28px;text-align:center">
-    <div style="font-size:64px;margin-bottom:20px;filter:drop-shadow(0 0 18px rgba(201,168,76,.4))">💎</div>
-    <h1 style="color:var(--gold);font-size:24px;font-weight:800;margin-bottom:10px;letter-spacing:.3px">
-      VIP Link-in-Bio
-    </h1>
-    <p style="color:#333;font-size:13px;margin-bottom:32px;line-height:2">
+  <div class="home-content" style="min-height:100vh;justify-content:center;padding:40px 28px">
+    <div style="font-size:64px;margin-bottom:20px;filter:drop-shadow(0 0 16px rgba(201,168,76,.4))">💎</div>
+    <h1 style="color:var(--gold);font-size:24px;font-weight:800;margin-bottom:10px">VIP Link-in-Bio</h1>
+    <p style="color:#2e2e2e;font-size:13px;margin-bottom:32px;line-height:2">
       نظام احترافي لصفحات التواصل<br>لزبائنك بدون ذكر اسمك
     </p>
     <button class="btn-gold" style="max-width:220px" onclick="goAdmin()">🔑 دخول الأدمن</button>
-    <p style="color:#222;font-size:11px;margin-top:24px;letter-spacing:2px">VIP LINKS © 2026</p>
+    <p style="color:#1a1a1a;font-size:11px;margin-top:28px;letter-spacing:2px">VIP LINKS © 2026</p>
   </div>
 </div>
 
-<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<!-- ══ LOGIN ═════════════════════════════════════════════════════════════ -->
 <div id="view-login" class="view">
   <div class="login-card">
     <div style="font-size:44px;margin-bottom:16px">🔐</div>
     <h2 style="color:var(--gold);margin-bottom:6px;font-size:20px;font-weight:800">سوبر أدمن</h2>
-    <p style="color:#333;font-size:12px;margin-bottom:22px">VIP Link-in-Bio</p>
+    <p style="color:#2a2a2a;font-size:12px;margin-bottom:22px">VIP Link-in-Bio</p>
     <input type="password" id="pw-input" placeholder="كلمة السر" dir="ltr"
-      onkeydown="if(event.key==='Enter')checkPw()" autocomplete="current-password">
-    <p id="pw-err" style="color:#e55;font-size:13px;margin-bottom:10px;display:none">
-      ❌ كلمة السر غلط
-    </p>
+      autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <p id="pw-err" style="color:#e55;font-size:13px;margin-bottom:10px;display:none">❌ كلمة السر غلط</p>
     <button class="btn-gold" onclick="checkPw()">دخول</button>
   </div>
 </div>
 
-<!-- ══ ADMIN DASHBOARD ════════════════════════════════════════════════════ -->
+<!-- ══ ADMIN ══════════════════════════════════════════════════════════════ -->
 <div id="view-admin" class="view">
   <div class="admin-inner">
-
-    <!-- Header -->
     <div class="admin-header">
       <div>
         <h1 style="color:var(--gold);font-size:19px;font-weight:800">🔑 سوبر أدمن</h1>
-        <p id="clients-count" style="color:#3a3a3a;font-size:12px;margin-top:3px">0 زبون</p>
+        <p id="clients-count" style="color:#333;font-size:12px;margin-top:3px">0 زبون</p>
       </div>
       <button class="btn-gold" style="width:auto;padding:11px 18px;font-size:14px;margin:0"
         onclick="showAddForm()">+ جديد</button>
@@ -354,10 +322,7 @@ input[dir=ltr]{direction:ltr;text-align:left}
 
     <!-- Form -->
     <div id="client-form" class="form-card">
-      <h3 id="form-title" style="color:var(--gold);margin-bottom:18px;font-size:16px;text-align:right">
-        ➕ زبون جديد
-      </h3>
-
+      <h3 id="form-title" style="color:var(--gold);margin-bottom:18px;font-size:16px;text-align:right">➕ زبون جديد</h3>
       <div class="grid2">
         <div>
           <label class="lbl">الاسم بالعربي</label>
@@ -368,10 +333,7 @@ input[dir=ltr]{direction:ltr;text-align:left}
           <input type="text" id="f-nameEn" placeholder="Ahmed M." dir="ltr" autocomplete="off">
         </div>
       </div>
-
-      <label class="lbl">🔗 الرابط الخاص
-        <span style="color:#2a2a2a;font-size:10px"> — إنكليزي بدون مسافات</span>
-      </label>
+      <label class="lbl">🔗 الرابط الخاص <span style="color:#222;font-size:10px">— إنكليزي بدون مسافات</span></label>
       <div class="slug-wrap">
         <span class="slug-prefix">?u=</span>
         <input type="text" id="f-slug" placeholder="ahmed2026" dir="ltr"
@@ -380,25 +342,30 @@ input[dir=ltr]{direction:ltr;text-align:left}
       </div>
       <p id="slug-err" style="color:#e55;font-size:11px;margin:-4px 0 8px;display:none"></p>
       <div id="slug-preview" class="slug-preview">
-        <p>🔗 رابط الزبون — يتولد تلقائياً</p>
+        <p>🔗 رابط الزبون يتولد تلقائياً</p>
         <code id="slug-preview-text"></code>
       </div>
-
-      <label class="lbl">نبذة مختصرة <span style="color:#2a2a2a">(اختياري)</span></label>
+      <label class="lbl">نبذة <span style="color:#222">(اختياري)</span></label>
       <input type="text" id="f-bio" placeholder="رجل أعمال | مستثمر" autocomplete="off">
-
       <div class="grid2">
-        <div><label class="lbl">📱 واتساب</label>
-          <input type="text" id="f-wa" placeholder="9647801234567" dir="ltr" inputmode="numeric"></div>
-        <div><label class="lbl">📷 إنستغرام</label>
-          <input type="text" id="f-ig" placeholder="@username" dir="ltr"></div>
-        <div><label class="lbl">✈️ تيليجرام</label>
-          <input type="text" id="f-tg" placeholder="@username" dir="ltr"></div>
-        <div><label class="lbl">👤 فيسبوك</label>
-          <input type="text" id="f-fb" placeholder="رابط الصفحة" dir="ltr"></div>
+        <div>
+          <label class="lbl">📱 واتساب</label>
+          <input type="text" id="f-wa" placeholder="9647801234567" dir="ltr" inputmode="numeric">
+        </div>
+        <div>
+          <label class="lbl">📷 إنستغرام <span style="color:#333;font-size:10px">بدون @</span></label>
+          <input type="text" id="f-ig" placeholder="username" dir="ltr" autocorrect="off" autocapitalize="none">
+        </div>
+        <div>
+          <label class="lbl">✈️ تيليجرام <span style="color:#333;font-size:10px">بدون @</span></label>
+          <input type="text" id="f-tg" placeholder="username" dir="ltr" autocorrect="off" autocapitalize="none">
+        </div>
+        <div>
+          <label class="lbl">👤 فيسبوك</label>
+          <input type="text" id="f-fb" placeholder="رابط الصفحة" dir="ltr">
+        </div>
       </div>
-
-      <label class="lbl" style="margin-top:4px">🖼️ صورة شخصية <span style="color:#2a2a2a">(اختياري)</span></label>
+      <label class="lbl" style="margin-top:4px">🖼️ صورة <span style="color:#222">(اختياري)</span></label>
       <div class="photo-row">
         <div class="photo-thumb" id="photo-thumb">
           <i class="fa-solid fa-user" style="color:#2a2a2a;font-size:22px"></i>
@@ -412,33 +379,25 @@ input[dir=ltr]{direction:ltr;text-align:left}
           </button>
           <button id="photo-remove-btn" onclick="removePhoto()"
             style="display:none;background:none;border:none;color:#c55;font-size:12px;
-              cursor:pointer;width:100%;font-family:'Tajawal',sans-serif;text-align:center">
-            حذف الصورة ✕
-          </button>
+            cursor:pointer;width:100%;font-family:'Tajawal',sans-serif;text-align:center;
+            -webkit-appearance:none;outline:none">حذف الصورة ✕</button>
         </div>
       </div>
       <input type="hidden" id="f-photo">
       <input type="hidden" id="f-edit-id">
-
       <div style="display:flex;gap:10px">
         <div style="flex:1"><button class="btn-gold" onclick="saveClient()" style="margin:0">💾 حفظ</button></div>
         <div style="flex:1"><button class="btn-gray" onclick="cancelForm()">إلغاء</button></div>
       </div>
     </div>
 
-    <!-- Search -->
     <div id="search-wrap">
-      <input type="text" id="search-input" placeholder="🔍 بحث عن زبون..."
-        oninput="renderList()" autocomplete="off">
+      <input type="text" id="search-input" placeholder="🔍 بحث..." oninput="renderList()" autocomplete="off">
     </div>
-
-    <!-- List -->
     <div id="clients-list"></div>
     <div id="empty-state" class="empty-state" style="display:none">
-      <div style="font-size:42px;margin-bottom:12px">👆</div>
-      أضف أول زبون لك!
+      <div style="font-size:42px;margin-bottom:12px">👆</div>أضف أول زبون!
     </div>
-
   </div>
 </div>
 
@@ -448,57 +407,80 @@ input[dir=ltr]{direction:ltr;text-align:left}
 <!-- ══ 404 ════════════════════════════════════════════════════════════════ -->
 <div id="view-404" class="view">
   <div style="text-align:center;animation:fadeUp .5s ease both">
-    <div style="font-size:64px;margin-bottom:14px;filter:grayscale(1)">🕳️</div>
-    <p style="color:#2a2a2a;font-size:16px;margin-bottom:6px">الصفحة غير موجودة</p>
-    <p style="color:#1a1a1a;font-size:12px;letter-spacing:2px">404</p>
+    <div style="font-size:60px;margin-bottom:14px">🕳️</div>
+    <p style="color:#2a2a2a;font-size:16px">الصفحة غير موجودة</p>
   </div>
 </div>
 
 <script>
 // ══ Config ════════════════════════════════════════════════════════════════
-const SUPER_PASS  = "ADMIN2026"; // ← غيّر كلمة السر هنا
-const STORAGE_KEY = "vip_pwa_v1";
-const BASE_URL    = location.origin + location.pathname.replace(/\/+$/, "");
+const SUPER_PASS  = "ADMIN2026";   // ← غيّر هنا
+const STORAGE_KEY = "vip_pwa_v2";
+
+// رابط الموقع الأساسي — يتعرف تلقائياً
+const BASE_URL = location.origin + location.pathname.replace(/\/?(?:index\.html)?$/, "");
 
 // ══ Storage ════════════════════════════════════════════════════════════════
-function loadClients() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
-}
-function saveClients(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
+const DB = {
+  load: () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } },
+  save: (list) => localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
+};
 
-// ══ View Manager ══════════════════════════════════════════════════════════
+// ══ View ══════════════════════════════════════════════════════════════════
 function showView(id) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
-// ══ Router ════════════════════════════════════════════════════════════════
+// ══ Router — يستخدم Query Params بدل Hash ═════════════════════════════════
+// السبب: iOS Safari standalone يتجاهل الـ hash تماماً
+// ?u=slug   → صفحة الزبون
+// ?admin=1  → لوحة التحكم
+// (فارغ)    → الرئيسية
 function route() {
-  const h = location.hash;
-  if (h.startsWith("#/u/")) {
-    const slug = h.slice(4);
-    const client = loadClients().find(c => c.slug === slug);
-    if (client) { showView("view-profile"); renderProfile(client, document.getElementById("view-profile")); }
-    else showView("view-404");
+  const p  = new URLSearchParams(location.search);
+  const u  = p.get("u");
+  const adm = p.get("admin");
+
+  if (u) {
+    const client = DB.load().find(c => c.slug === u);
+    if (client) {
+      showView("view-profile");
+      renderProfile(client, document.getElementById("view-profile"));
+      document.title = `${client.nameAr} | VIP`;
+    } else {
+      showView("view-404");
+    }
     return;
   }
-  if (h === "#/admin") {
-    if (sessionStorage.getItem("auth") === "1") { showView("view-admin"); renderList(); }
-    else showView("view-login");
+  if (adm === "1") {
+    if (sessionStorage.getItem("auth") === "1") {
+      showView("view-admin"); renderList();
+    } else {
+      showView("view-login");
+    }
     return;
   }
   showView("view-home");
 }
 
-window.addEventListener("hashchange", route);
+function navigate(params) {
+  const qs = new URLSearchParams(params).toString();
+  history.pushState({}, "", `${BASE_URL}/?${qs}`);
+  route();
+}
+
+window.addEventListener("popstate", route);
 document.addEventListener("DOMContentLoaded", () => { route(); initPWA(); });
 
+// ══ رابط الزبون ════════════════════════════════════════════════════════════
+function clientLink(slug) {
+  return `${BASE_URL}/?u=${slug}`;
+}
+
 // ══ Auth ══════════════════════════════════════════════════════════════════
-function goAdmin() { location.hash = "#/admin"; }
+function goAdmin() { navigate({ admin: "1" }); }
 
 function checkPw() {
   const v = document.getElementById("pw-input").value;
@@ -506,28 +488,83 @@ function checkPw() {
     sessionStorage.setItem("auth","1");
     document.getElementById("pw-err").style.display = "none";
     document.getElementById("pw-input").value = "";
+    history.replaceState({}, "", `${BASE_URL}/?admin=1`);
     showView("view-admin"); renderList();
   } else {
     document.getElementById("pw-err").style.display = "block";
     document.getElementById("pw-input").value = "";
+    const card = document.querySelector(".login-card");
+    card.style.transition = "transform .08s";
+    card.style.transform = "translateX(-9px)";
+    setTimeout(() => { card.style.transform = "translateX(9px)"; }, 80);
+    setTimeout(() => { card.style.transform = ""; }, 160);
   }
+}
+
+// ══ فتح التطبيقات مباشرة ══════════════════════════════════════════════════
+// هذي الدالة تحاول تفتح التطبيق نفسه على iOS و Android
+// إذا التطبيق مو مثبت ترجع للمتصفح
+function openApp(appScheme, webUrl) {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  
+  if (isIOS) {
+    // iOS: نستخدم window.location لفتح app scheme
+    const start = Date.now();
+    window.location.href = appScheme;
+    // بعد ثانيتين إذا لا زلنا هنا = التطبيق مو مثبت، نفتح المتصفح
+    setTimeout(() => {
+      if (Date.now() - start < 2500) {
+        window.open(webUrl, "_blank");
+      }
+    }, 2000);
+  } else {
+    // Android: intent URL أو web fallback
+    const intent = appScheme.startsWith("instagram")
+      ? `intent://instagram.com/_u/${appScheme.split("username=")[1]}/#Intent;scheme=https;package=com.instagram.android;end`
+      : `intent://resolve?domain=${appScheme.split("domain=")[1]}#Intent;scheme=tg;package=org.telegram.messenger;end`;
+    try {
+      window.location.href = intent;
+    } catch(e) {
+      window.open(webUrl, "_blank");
+    }
+    setTimeout(() => { window.open(webUrl, "_blank"); }, 1500);
+  }
+}
+
+function openIG(user) {
+  openApp(`instagram://user?username=${user}`, `https://instagram.com/${user}/`);
+}
+function openTG(user) {
+  openApp(`tg://resolve?domain=${user}`, `https://t.me/${user}`);
 }
 
 // ══ Profile Renderer ══════════════════════════════════════════════════════
 function renderProfile(c, el) {
-  const links = [
-    {cls:"fab fa-whatsapp",      href: c.wa ? `https://wa.me/${c.wa}` : null},
-    {cls:"fab fa-instagram",     href: c.ig ? `https://instagram.com/${c.ig.replace("@","")}` : null},
-    {cls:"fab fa-telegram-plane",href: c.tg ? `https://t.me/${c.tg.replace("@","")}` : null},
-    {cls:"fab fa-facebook-f",    href: c.fb || null},
-  ].filter(l => l.href);
+  // نظّف الأيوزرات
+  const igUser = (c.ig || "").replace(/^@/,"").trim();
+  const tgUser = (c.tg || "").replace(/^@/,"").trim();
+  const waNum  = (c.wa || "").replace(/\D/,"");
+  const fbUrl  = c.fb ? (c.fb.startsWith("http") ? c.fb : `https://facebook.com/${c.fb}`) : "";
 
+  // بناء الروابط
+  const links = [];
+  if (waNum)  links.push({ cls:"fab fa-whatsapp",       action:`window.open('https://wa.me/${waNum}','_blank')` });
+  if (igUser) links.push({ cls:"fab fa-instagram",      action:`openIG('${igUser}')` });
+  if (tgUser) links.push({ cls:"fab fa-telegram-plane", action:`openTG('${tgUser}')` });
+  if (fbUrl)  links.push({ cls:"fab fa-facebook-f",     action:`window.open('${fbUrl}','_blank')` });
+
+  // نجوم
   let stars = "";
-  for(let i=0;i<20;i++){
-    const x=Math.random()*100, y=Math.random()*100;
-    const s=Math.random()*2.5+1, d=(Math.random()*3).toFixed(1);
-    stars += `<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation:sparkle ${2+parseFloat(d)}s ${d}s ease-in-out infinite"></div>`;
+  for (let i=0; i<20; i++) {
+    const x=(Math.random()*100).toFixed(1), y=(Math.random()*100).toFixed(1);
+    const s=(Math.random()*2.5+1).toFixed(1), d=(Math.random()*3).toFixed(1);
+    const dur=(2.5+Math.random()*2).toFixed(1);
+    stars += `<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation:sparkle ${dur}s ${d}s ease-in-out infinite"></div>`;
   }
+
+  const socialHTML = links.map(l =>
+    `<a href="javascript:void(0)" onclick="${l.action}" role="button"><i class="${l.cls}"></i></a>`
+  ).join("");
 
   el.innerHTML = `
     ${stars}
@@ -535,23 +572,20 @@ function renderProfile(c, el) {
       <div class="ring"></div>
       <div class="ring-gap"></div>
       <div class="avatar-inner">
-        ${c.photo ? `<img src="${c.photo}" alt="${c.nameAr}">` : `<i class="fa-solid fa-user"></i>`}
+        ${c.photo ? `<img src="${c.photo}" alt="${c.nameAr}" loading="eager">` : `<i class="fa-solid fa-user"></i>`}
       </div>
     </div>
     <h1 class="p-name-ar">${c.nameAr}</h1>
     <h2 class="p-name-en">${c.nameEn}</h2>
     <p class="p-tag">Link-in-bio</p>
     ${c.bio ? `<p class="p-bio">${c.bio}</p>` : ""}
-    ${links.length ? `
-      <div class="social-row">
-        ${links.map(l=>`<a href="${l.href}" target="_blank" rel="noreferrer"><i class="${l.cls}"></i></a>`).join("")}
-      </div>` : ""}
+    ${links.length ? `<div class="social-row">${socialHTML}</div>` : ""}
   `;
 }
 
-// ══ Preview Modal ═════════════════════════════════════════════════════════
+// ══ Preview ════════════════════════════════════════════════════════════════
 function openPreview(id) {
-  const c = loadClients().find(x => x.id === id);
+  const c = DB.load().find(x => x.id === id);
   if (!c) return;
   renderProfile(c, document.getElementById("preview-profile-wrap"));
   document.getElementById("preview-modal").classList.add("open");
@@ -564,35 +598,26 @@ function closePreview() {
 
 // ══ Admin List ════════════════════════════════════════════════════════════
 function renderList() {
-  const q = (document.getElementById("search-input") || {}).value || "";
-  const all = loadClients();
+  const q   = (document.getElementById("search-input")||{}).value || "";
+  const all  = DB.load();
   const list = all.filter(c =>
-    !q || c.nameAr.includes(q) || c.nameEn.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q)
+    !q || c.nameAr.includes(q) ||
+    c.nameEn.toLowerCase().includes(q.toLowerCase()) ||
+    c.slug.includes(q)
   );
-
   document.getElementById("clients-count").textContent = `${all.length} زبون مسجل`;
   document.getElementById("search-wrap").style.display = all.length > 2 ? "block" : "none";
-
   const container = document.getElementById("clients-list");
-  const empty = document.getElementById("empty-state");
-
-  if (!list.length) {
-    container.innerHTML = "";
-    empty.style.display = "block";
-    return;
-  }
+  const empty     = document.getElementById("empty-state");
+  if (!list.length) { container.innerHTML = ""; empty.style.display = "block"; return; }
   empty.style.display = "none";
-
   container.innerHTML = list.map((c,i) => {
-    const link = `${BASE_URL}#/u/${c.slug}`;
+    const link = clientLink(c.slug);
     return `
     <div class="client-card" style="animation-delay:${i*0.05}s">
       <div class="client-top">
         <div class="client-avatar">
-          ${c.photo
-            ? `<img src="${c.photo}" alt="">`
-            : `<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>`
-          }
+          ${c.photo ? `<img src="${c.photo}" alt="" loading="lazy">` : `<i class="fa-solid fa-user" style="color:var(--gold);font-size:20px"></i>`}
         </div>
         <div style="flex:1;min-width:0">
           <p style="color:#fff;font-weight:700;font-size:15px;margin-bottom:2px;
@@ -604,84 +629,75 @@ function renderList() {
           👁️ معاينة
         </button>
       </div>
-
       <div class="link-box">
-        <p>رابط الزبون — أرسله له 🔗</p>
+        <p>رابط الزبون — أرسله له مباشرة 🔗</p>
         <code>${link}</code>
       </div>
-
       <div class="c-actions">
         <button class="btn-act" id="cb-${c.id}" onclick="copyLink('${c.slug}','${c.id}')"
           style="flex:2;color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.07)">
           📋 نسخ الرابط
         </button>
         <button class="btn-act" onclick="editClient('${c.id}')"
-          style="flex:1;color:#888;border-color:#252525;background:#111">
-          ✏️
-        </button>
+          style="flex:1;color:#888;border-color:#252525;background:#111">✏️</button>
         <button class="btn-act" onclick="toggleDel('${c.id}')"
-          style="flex:1;color:#e55;border-color:rgba(229,85,85,.25);background:rgba(229,85,85,.06)">
-          🗑️
-        </button>
+          style="flex:1;color:#e55;border-color:rgba(229,85,85,.25);background:rgba(229,85,85,.06)">🗑️</button>
       </div>
-
       <div id="del-${c.id}" class="del-confirm">
-        <p style="color:#e55;margin-bottom:12px;font-size:13px">
-          حذف <strong>${c.nameAr}</strong>؟
-        </p>
+        <p style="color:#e55;margin-bottom:12px;font-size:13px">حذف <strong>${c.nameAr}</strong>؟</p>
         <div style="display:flex;gap:8px">
           <button onclick="deleteClient('${c.id}')"
             style="flex:1;background:#d44;border:none;border-radius:9px;padding:11px;
-              color:#fff;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif">
-            نعم احذف
-          </button>
+            color:#fff;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;
+            -webkit-appearance:none;outline:none">نعم احذف</button>
           <button onclick="toggleDel('${c.id}')"
             style="flex:1;background:#141414;border:1px solid #222;border-radius:9px;
-              padding:11px;color:#888;cursor:pointer;font-family:'Tajawal',sans-serif">
-            إلغاء
-          </button>
+            padding:11px;color:#888;cursor:pointer;font-family:'Tajawal',sans-serif;
+            -webkit-appearance:none;outline:none">إلغاء</button>
         </div>
       </div>
     </div>`;
   }).join("");
 }
 
-// ══ Actions ═══════════════════════════════════════════════════════════════
+// Actions
+function toggleDel(id) {
+  const el = document.getElementById(`del-${id}`);
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
+function deleteClient(id) {
+  DB.save(DB.load().filter(c => c.id !== id));
+  renderList(); toast("🗑️ تم الحذف");
+}
+
+// ══ Copy ══════════════════════════════════════════════════════════════════
 function copyLink(slug, id) {
-  const url = `${BASE_URL}#/u/${slug}`;
-  // Fallback for iOS Safari
-  if (navigator.clipboard) {
+  const url = clientLink(slug);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(() => onCopied(id)).catch(() => fallbackCopy(url, id));
   } else { fallbackCopy(url, id); }
 }
 function fallbackCopy(text, id) {
   const ta = document.createElement("textarea");
-  ta.value = text; ta.style.cssText = "position:fixed;opacity:0";
-  document.body.appendChild(ta); ta.focus(); ta.select();
-  try { document.execCommand("copy"); onCopied(id); } catch(e) {}
+  ta.value = text;
+  ta.style.cssText = "position:fixed;left:-9999px;top:50%;font-size:16px;opacity:0";
+  document.body.appendChild(ta);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
+  try { document.execCommand("copy"); onCopied(id); }
+  catch(e) { toast("انسخ الرابط يدوياً من المربع"); }
   document.body.removeChild(ta);
 }
 function onCopied(id) {
   const btn = document.getElementById(`cb-${id}`);
   if (btn) {
-    btn.textContent = "✅ تم النسخ!";
+    btn.textContent = "✅ تم!";
     btn.style.color = "#4caf50"; btn.style.borderColor = "#4caf50";
     setTimeout(() => {
       btn.textContent = "📋 نسخ الرابط";
       btn.style.color = "var(--gold)"; btn.style.borderColor = "var(--border)";
     }, 3000);
   }
-  toast("✅ تم نسخ الرابط بنجاح!");
-}
-
-function toggleDel(id) {
-  const el = document.getElementById(`del-${id}`);
-  el.style.display = el.style.display === "block" ? "none" : "block";
-}
-function deleteClient(id) {
-  saveClients(loadClients().filter(c => c.id !== id));
-  toast("🗑️ تم الحذف");
-  renderList();
+  toast("✅ تم نسخ الرابط!");
 }
 
 // ══ Form ══════════════════════════════════════════════════════════════════
@@ -690,37 +706,27 @@ function showAddForm() {
   document.getElementById("form-title").textContent = "➕ زبون جديد";
   document.getElementById("f-edit-id").value = "";
   document.getElementById("client-form").style.display = "block";
-  setTimeout(() => document.getElementById("client-form").scrollIntoView({behavior:"smooth"}), 50);
+  setTimeout(() => document.getElementById("client-form").scrollIntoView({behavior:"smooth"}), 60);
 }
 function editClient(id) {
-  const c = loadClients().find(x => x.id === id);
+  const c = DB.load().find(x => x.id === id);
   if (!c) return;
   clearForm();
   document.getElementById("form-title").textContent = "✏️ تعديل الزبون";
-  document.getElementById("f-edit-id").value = id;
-  document.getElementById("f-nameAr").value = c.nameAr || "";
-  document.getElementById("f-nameEn").value = c.nameEn || "";
-  document.getElementById("f-slug").value   = c.slug || "";
-  document.getElementById("f-bio").value    = c.bio  || "";
-  document.getElementById("f-wa").value     = c.wa   || "";
-  document.getElementById("f-ig").value     = c.ig   || "";
-  document.getElementById("f-tg").value     = c.tg   || "";
-  document.getElementById("f-fb").value     = c.fb   || "";
+  const s = (k,v) => { const el=document.getElementById(k); if(el) el.value=v||""; };
+  s("f-edit-id",id); s("f-nameAr",c.nameAr); s("f-nameEn",c.nameEn);
+  s("f-slug",c.slug); s("f-bio",c.bio);
+  s("f-wa",c.wa); s("f-ig",c.ig); s("f-tg",c.tg); s("f-fb",c.fb);
   if (c.photo) setPhotoPreview(c.photo);
   updateSlugPreview();
   document.getElementById("client-form").style.display = "block";
-  setTimeout(() => document.getElementById("client-form").scrollIntoView({behavior:"smooth"}), 50);
+  setTimeout(() => document.getElementById("client-form").scrollIntoView({behavior:"smooth"}), 60);
 }
-function cancelForm() {
-  clearForm();
-  document.getElementById("client-form").style.display = "none";
-}
+function cancelForm() { clearForm(); document.getElementById("client-form").style.display = "none"; }
 function clearForm() {
-  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb"]
-    .forEach(id => document.getElementById(id).value = "");
-  document.getElementById("f-photo").value = "";
-  document.getElementById("f-edit-id").value = "";
-  document.getElementById("f-photo-input").value = "";
+  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-photo","f-edit-id"]
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  try { document.getElementById("f-photo-input").value=""; } catch(e){}
   document.getElementById("slug-preview").style.display = "none";
   document.getElementById("slug-err").style.display = "none";
   const thumb = document.getElementById("photo-thumb");
@@ -730,25 +736,22 @@ function clearForm() {
   document.getElementById("photo-remove-btn").style.display = "none";
 }
 function saveClient() {
-  const get = id => document.getElementById(id).value.trim();
-  const nameAr = get("f-nameAr"), nameEn = get("f-nameEn");
-  const slug   = get("f-slug").toLowerCase();
-  const bio=get("f-bio"), wa=get("f-wa"), ig=get("f-ig"), tg=get("f-tg"), fb=get("f-fb");
-  const photo  = document.getElementById("f-photo").value;
-  const editId = document.getElementById("f-edit-id").value;
-
+  const g = id => (document.getElementById(id).value || "").trim();
+  const slug = g("f-slug").toLowerCase().replace(/[^a-z0-9_-]/g,"");
+  const ig   = g("f-ig").replace(/^@/,"");
+  const tg   = g("f-tg").replace(/^@/,"");
   if (!slug) { showErr("الرابط مطلوب"); return; }
-  if (!/^[a-z0-9_-]+$/.test(slug)) { showErr("إنكليزي صغير وأرقام فقط"); return; }
-  const clients = loadClients();
-  if (clients.find(c => c.slug === slug && c.id !== editId)) { showErr("الرابط مستخدم مسبقاً"); return; }
+  const clients = DB.load();
+  const editId  = g("f-edit-id");
+  if (clients.find(c => c.slug===slug && c.id!==editId)) { showErr("الرابط مستخدم مسبقاً"); return; }
   document.getElementById("slug-err").style.display = "none";
-
-  const entry = {nameAr,nameEn,slug,bio,wa,ig,tg,fb,photo};
+  const entry = { nameAr:g("f-nameAr"), nameEn:g("f-nameEn"), slug, bio:g("f-bio"),
+    wa:g("f-wa"), ig, tg, fb:g("f-fb"), photo:document.getElementById("f-photo").value };
   if (editId) {
-    saveClients(clients.map(c => c.id===editId ? {...c,...entry} : c));
+    DB.save(clients.map(c => c.id===editId ? {...c,...entry} : c));
     toast("✅ تم التعديل!");
   } else {
-    saveClients([...clients, {...entry, id: Date.now().toString()}]);
+    DB.save([...clients, {...entry, id:Date.now().toString()}]);
     toast("✅ تمت الإضافة!");
   }
   cancelForm(); renderList();
@@ -759,26 +762,22 @@ function showErr(msg) {
 }
 function updateSlugPreview() {
   const s = document.getElementById("f-slug").value.trim();
-  const prev = document.getElementById("slug-preview");
-  if (s) {
-    document.getElementById("slug-preview-text").textContent = `${BASE_URL}#/u/${s}`;
-    prev.style.display = "block";
-  } else { prev.style.display = "none"; }
+  const pv = document.getElementById("slug-preview");
+  if (s) { document.getElementById("slug-preview-text").textContent = clientLink(s); pv.style.display="block"; }
+  else pv.style.display = "none";
 }
 function handlePhoto(e) {
   const file = e.target.files[0]; if (!file) return;
-  // Compress large images
   const reader = new FileReader();
   reader.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const MAX = 400;
-      let w=img.width, h=img.height;
-      if (w > MAX || h > MAX) { if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
-      canvas.width=w; canvas.height=h;
-      canvas.getContext("2d").drawImage(img,0,0,w,h);
-      setPhotoPreview(canvas.toDataURL("image/jpeg", 0.82));
+      const c = document.createElement("canvas");
+      const M=400; let w=img.width,h=img.height;
+      if(w>M||h>M){if(w>h){h=Math.round(h*M/w);w=M;}else{w=Math.round(w*M/h);h=M;}}
+      c.width=w; c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      setPhotoPreview(c.toDataURL("image/jpeg",.82));
     };
     img.src = ev.target.result;
   };
@@ -786,18 +785,18 @@ function handlePhoto(e) {
 }
 function setPhotoPreview(src) {
   document.getElementById("f-photo").value = src;
-  const thumb = document.getElementById("photo-thumb");
-  thumb.style.border = "2px solid var(--gold)";
-  thumb.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover">`;
+  const t = document.getElementById("photo-thumb");
+  t.style.border = "2px solid var(--gold)";
+  t.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover">`;
   document.getElementById("photo-btn").textContent = "تغيير 🔄";
   document.getElementById("photo-remove-btn").style.display = "block";
 }
 function removePhoto() {
   document.getElementById("f-photo").value = "";
-  document.getElementById("f-photo-input").value = "";
-  const thumb = document.getElementById("photo-thumb");
-  thumb.innerHTML = `<i class="fa-solid fa-user" style="color:#2a2a2a;font-size:22px"></i>`;
-  thumb.style.border = "2px dashed #2a2a2a";
+  try { document.getElementById("f-photo-input").value=""; } catch(e){}
+  const t = document.getElementById("photo-thumb");
+  t.innerHTML = `<i class="fa-solid fa-user" style="color:#2a2a2a;font-size:22px"></i>`;
+  t.style.border = "2px dashed #2a2a2a";
   document.getElementById("photo-btn").textContent = "رفع صورة 📤";
   document.getElementById("photo-remove-btn").style.display = "none";
 }
@@ -806,56 +805,40 @@ function removePhoto() {
 function toast(msg) {
   const el = document.getElementById("toast");
   el.textContent = msg; el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2500);
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2600);
 }
 
-// ══ PWA Install ════════════════════════════════════════════════════════════
+// ══ PWA ════════════════════════════════════════════════════════════════════
 let deferredPrompt = null;
-
 function initPWA() {
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches
-    || window.navigator.standalone;
-
-  if (isStandalone) return; // Already installed
-
-  if (isIOS) {
-    // Show iOS hint after 3s
+  const standalone = window.matchMedia("(display-mode:standalone)").matches || navigator.standalone===true;
+  if (standalone) return;
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
     setTimeout(() => {
-      const seen = sessionStorage.getItem("ios-hint-seen");
-      if (!seen) {
+      if (!sessionStorage.getItem("ios-hint")) {
         document.getElementById("ios-hint").style.display = "block";
-        sessionStorage.setItem("ios-hint-seen","1");
+        sessionStorage.setItem("ios-hint","1");
       }
     }, 3000);
   } else {
-    // Android / Chrome
     window.addEventListener("beforeinstallprompt", e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      setTimeout(() => { document.getElementById("install-banner").style.display = "flex"; }, 2000);
+      e.preventDefault(); deferredPrompt = e;
+      setTimeout(() => { document.getElementById("install-banner").style.display="flex"; }, 2500);
     });
-    window.addEventListener("appinstalled", () => hideBanner());
+    window.addEventListener("appinstalled", hideBanner);
   }
 }
-
 function installPWA() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => { deferredPrompt = null; hideBanner(); });
+  deferredPrompt.userChoice.then(() => { deferredPrompt=null; hideBanner(); });
 }
-function hideBanner() {
-  document.getElementById("install-banner").style.display = "none";
-  document.getElementById("ios-hint").style.display = "none";
-}
+function hideBanner() { document.getElementById("install-banner").style.display="none"; }
+function closeHint()  { document.getElementById("ios-hint").style.display="none"; }
 
-// ══ Service Worker Registration ════════════════════════════════════════════
+// Service Worker
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(r => console.log("SW registered", r.scope))
-      .catch(e => console.log("SW error", e));
-  });
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 }
 </script>
 </body>
