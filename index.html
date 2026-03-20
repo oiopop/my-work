@@ -249,25 +249,6 @@ function route() {
   show("view-home");
 }
 
-// ── فتح التطبيق مع fallback للموقع ──────────────────────────────────────────────
-function openApp(appUrl, webUrl) {
-  var ua        = navigator.userAgent.toLowerCase();
-  var isIOS     = /iphone|ipad|ipod/.test(ua);
-  var isAndroid = /android/.test(ua);
-  if (isIOS || isAndroid) {
-    var iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-    iframe.src = appUrl;
-    setTimeout(function() {
-      document.body.removeChild(iframe);
-      window.location.href = webUrl;
-    }, 1200);
-  } else {
-    window.open(webUrl, "_blank");
-  }
-}
-
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", route);
 
@@ -289,7 +270,6 @@ function checkPw() {
 function cleanUser(val) {
   if (!val) return "";
   val = val.trim();
-  // اذا رابط كامل استخرج اليوزر من آخره
   if (val.startsWith("http://") || val.startsWith("https://")) {
     val = val.replace(/\/$/, "").split("/").pop();
   }
@@ -305,18 +285,12 @@ function renderProfile(c, el) {
   var pubg = c.pubg ? c.pubg.trim()           : "";
 
   var links = [
-    { cls:"fab fa-whatsapp",
-      url: wa ? "https://wa.me/" + wa : "" },
-    { cls:"fab fa-instagram",
-      url: ig ? "instagram://user?username=" + ig + "||https://www.instagram.com/" + ig : "" },
-    { cls:"fab fa-telegram-plane",
-      url: tg ? "tg://resolve?domain=" + tg + "||https://t.me/" + tg : "" },
-    { cls:"fab fa-facebook-f",
-      url: fb ? (fb.startsWith("http") ? fb : "https://facebook.com/" + fb) : "" },
-    { cls:"fab fa-tiktok",
-      url: tt ? "https://www.tiktok.com/@" + tt : "" },
-    { cls:"fas fa-gamepad",
-      url: pubg ? pubg : "" }
+    { cls:"fab fa-whatsapp",       url: wa   ? "https://wa.me/"              + wa   : "" },
+    { cls:"fab fa-instagram",      url: ig   ? "https://www.instagram.com/"  + ig   : "" },
+    { cls:"fab fa-telegram-plane", url: tg   ? "https://t.me/"               + tg   : "" },
+    { cls:"fab fa-facebook-f",     url: fb   ? (fb.startsWith("http") ? fb : "https://facebook.com/" + fb) : "" },
+    { cls:"fab fa-tiktok",         url: tt   ? "https://www.tiktok.com/@"    + tt   : "" },
+    { cls:"fas fa-gamepad",        url: pubg ? pubg                                  : "" }
   ].filter(function(l) { return l.url; });
 
   var stars = "";
@@ -328,12 +302,6 @@ function renderProfile(c, el) {
   var photo   = c.photo ? '<img src="'+c.photo+'" alt="">' : '<i class="fa-solid fa-user"></i>';
   var bio     = c.bio   ? '<p class="p-bio">'+c.bio+'</p>' : "";
   var socials = links.map(function(l) {
-    if (l.url.indexOf("||") !== -1) {
-      var parts  = l.url.split("||");
-      var appUrl = parts[0];
-      var webUrl = parts[1];
-      return '<a href="'+webUrl+'" data-app="'+appUrl+'" data-web="'+webUrl+'" class="app-link" target="_blank" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
-    }
     return '<a href="'+l.url+'" target="_blank" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
   }).join("");
 
@@ -346,13 +314,6 @@ function renderProfile(c, el) {
     bio +
     (links.length ? '<div class="social-row">'+socials+'</div>' : "");
 
-  // ربط أزرار التطبيق
-  el.querySelectorAll(".app-link").forEach(function(a) {
-    a.addEventListener("click", function(e) {
-      e.preventDefault();
-      openApp(a.getAttribute("data-app"), a.getAttribute("data-web"));
-    });
-  });
 }
 
 // ── Preview Modal ────────────────────────────────────────────────────────────────
