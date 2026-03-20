@@ -267,14 +267,22 @@ function checkPw() {
 }
 
 // ── Profile ─────────────────────────────────────────────────────────────────────
+function toUrl(val, base) {
+  if (!val) return "";
+  val = val.trim();
+  if (val.startsWith("http://") || val.startsWith("https://")) return val;
+  val = val.replace("@","");
+  return base + val;
+}
+
 function renderProfile(c, el) {
   var links = [
-    { cls:"fab fa-whatsapp",       url: c.wa   ? "https://wa.me/"           + c.wa                 : "" },
-    { cls:"fab fa-instagram",      url: c.ig   ? "https://instagram.com/"   + c.ig.replace("@","") : "" },
-    { cls:"fab fa-telegram-plane", url: c.tg   ? "https://t.me/"            + c.tg.replace("@","") : "" },
-    { cls:"fab fa-facebook-f",     url: c.fb   ? c.fb                                               : "" },
-    { cls:"fab fa-tiktok",         url: c.tt   ? "https://www.tiktok.com/@" + c.tt.replace("@","") : "" },
-    { cls:"fas fa-gamepad",        url: c.pubg ? c.pubg                                             : "" }
+    { cls:"fab fa-whatsapp",       url: c.wa   ? "https://wa.me/"           + c.wa.replace(/\D/g,"") : "" },
+    { cls:"fab fa-instagram",      url: c.ig   ? toUrl(c.ig, "https://instagram.com/")               : "" },
+    { cls:"fab fa-telegram-plane", url: c.tg   ? toUrl(c.tg, "https://t.me/")                        : "" },
+    { cls:"fab fa-facebook-f",     url: c.fb   ? toUrl(c.fb, "https://facebook.com/")                : "" },
+    { cls:"fab fa-tiktok",         url: c.tt   ? toUrl(c.tt, "https://www.tiktok.com/@")             : "" },
+    { cls:"fas fa-gamepad",        url: c.pubg ? c.pubg                                               : "" }
   ].filter(function(l) { return l.url; });
 
   var stars = "";
