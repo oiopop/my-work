@@ -144,7 +144,8 @@ label.lbl{color:#555;font-size:11px;display:block;margin-bottom:4px;text-align:r
         <div><label class="lbl">✈️ تيليجرام</label><input type="text" id="f-tg" placeholder="@username" dir="ltr"></div>
         <div><label class="lbl">👤 فيسبوك</label><input type="text" id="f-fb" placeholder="رابط الصفحة" dir="ltr"></div>
         <div><label class="lbl">🎵 تيك توك</label><input type="text" id="f-tt" placeholder="@username" dir="ltr"></div>
-        <div><label class="lbl">🎮 PUBG</label><input type="text" id="f-pubg" placeholder="رابط PUBG" dir="ltr"></div>
+        <div><label class="lbl">🎮 PUBG ID</label><input type="text" id="f-pubg" placeholder="مثال: 123456789" dir="ltr"></div>
+        <div><label class="lbl">📢 قناة تيليجرام</label><input type="text" id="f-tgch" placeholder="@channel أو رابط" dir="ltr"></div>
       </div>
       <label class="lbl">🖼️ صورة شخصية (اختياري)</label>
       <div class="photo-row">
@@ -284,13 +285,16 @@ function renderProfile(c, el) {
   var tt   = cleanUser(c.tt);
   var pubg = c.pubg ? c.pubg.trim()           : "";
 
+  var tgch = cleanUser(c.tgch||"");
+
   var links = [
-    { cls:"fab fa-whatsapp",       url: wa   ? "https://wa.me/"              + wa   : "" },
-    { cls:"fab fa-instagram",      url: ig   ? "https://www.instagram.com/"  + ig   : "" },
-    { cls:"fab fa-telegram-plane", url: tg   ? "https://t.me/"               + tg   : "" },
-    { cls:"fab fa-facebook-f",     url: fb   ? (fb.startsWith("http") ? fb : "https://facebook.com/" + fb) : "" },
-    { cls:"fab fa-tiktok",         url: tt   ? "https://www.tiktok.com/@"    + tt   : "" },
-    { cls:"fas fa-gamepad",        url: pubg ? pubg                                  : "" }
+    { cls:"fab fa-whatsapp",       url: wa   ? "https://wa.me/"              + wa   : "",    pubgId:"" },
+    { cls:"fab fa-instagram",      url: ig   ? "https://www.instagram.com/"  + ig   : "",    pubgId:"" },
+    { cls:"fab fa-telegram-plane", url: tg   ? "https://t.me/"               + tg   : "",    pubgId:"" },
+    { cls:"fab fa-facebook-f",     url: fb   ? (fb.startsWith("http") ? fb : "https://facebook.com/" + fb) : "", pubgId:"" },
+    { cls:"fab fa-tiktok",         url: tt   ? "https://www.tiktok.com/@"    + tt   : "",    pubgId:"" },
+    { cls:"fab fa-telegram-plane", url: tgch ? "https://t.me/"               + tgch : "",    pubgId:"", extra:"channel" },
+    { cls:"fas fa-gamepad",        url: pubg ? "#"                                   : "",    pubgId: pubg }
   ].filter(function(l) { return l.url; });
 
   var stars = "";
@@ -302,6 +306,12 @@ function renderProfile(c, el) {
   var photo   = c.photo ? '<img src="'+c.photo+'" alt="">' : '<i class="fa-solid fa-user"></i>';
   var bio     = c.bio   ? '<p class="p-bio">'+c.bio+'</p>' : "";
   var socials = links.map(function(l) {
+    if (l.pubgId) {
+      return '<a href="#" class="pubg-btn" data-id="'+l.pubgId+'" style="position:relative" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
+    }
+    if (l.extra === "channel") {
+      return '<a href="'+l.url+'" target="_blank" rel="noreferrer" style="position:relative"><i class="'+l.cls+'"></i><span style="position:absolute;top:-6px;right:-6px;background:#229ed9;color:#fff;font-size:8px;font-weight:900;border-radius:99px;padding:1px 5px;font-family:sans-serif">CH</span></a>';
+    }
     return '<a href="'+l.url+'" target="_blank" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
   }).join("");
 
@@ -435,6 +445,7 @@ function editClient(id) {
   document.getElementById("f-fb").value      = c.fb||"";
   document.getElementById("f-tt").value      = c.tt||"";
   document.getElementById("f-pubg").value    = c.pubg||"";
+  document.getElementById("f-tgch").value   = c.tgch||"";
   if (c.photo) setPhotoPreview(c.photo);
   if (c.photo) setPhotoPreview(c.photo);
   updateSlugPreview();
@@ -448,7 +459,7 @@ function cancelForm() {
 }
 
 function clearForm() {
-  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg"].forEach(function(id){
+  ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg","f-tgch"].forEach(function(id){
     document.getElementById(id).value="";
   });
   document.getElementById("f-photo").value       = "";
@@ -493,7 +504,7 @@ function saveClient() {
     id:     editId || Date.now().toString(),
     ts:     old.ts || Date.now(),
     nameAr:nameAr, nameEn:nameEn, slug:slug, bio:bio,
-    wa:wa, ig:ig, tg:tg, fb:fb, tt:tt, pubg:pubg, photo:photo
+    wa:wa, ig:ig, tg:tg, fb:fb, tt:tt, pubg:pubg, tgch:tgch, photo:photo
   };
 
   dbSave(obj).then(function() {
