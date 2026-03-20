@@ -324,6 +324,24 @@ function renderProfile(c, el) {
     bio +
     (links.length ? '<div class="social-row">'+socials+'</div>' : "");
 
+  // PUBG ID popup
+  el.querySelectorAll(".pubg-btn").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.preventDefault();
+      var pid = btn.getAttribute("data-id");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pid).catch(function(){});
+      }
+      var old = document.getElementById("pubg-toast");
+      if (old) old.remove();
+      var toast = document.createElement("div");
+      toast.id = "pubg-toast";
+      toast.style.cssText = "position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--gold);color:var(--gold);padding:12px 22px;border-radius:30px;font-size:14px;font-family:'Tajawal',sans-serif;z-index:9999;white-space:nowrap;text-align:center";
+      toast.innerHTML = "🎮 PUBG ID<br><strong style='font-size:18px;color:#fff'>"+pid+"</strong><br><span style='font-size:11px;color:#888'>تم النسخ ✓</span>";
+      document.body.appendChild(toast);
+      setTimeout(function(){ toast.remove(); }, 3000);
+    });
+  });
 }
 
 // ── Preview Modal ────────────────────────────────────────────────────────────────
@@ -447,7 +465,6 @@ function editClient(id) {
   document.getElementById("f-pubg").value    = c.pubg||"";
   document.getElementById("f-tgch").value   = c.tgch||"";
   if (c.photo) setPhotoPreview(c.photo);
-  if (c.photo) setPhotoPreview(c.photo);
   updateSlugPreview();
   document.getElementById("client-form").style.display = "block";
   document.getElementById("client-form").scrollIntoView({behavior:"smooth"});
@@ -462,10 +479,9 @@ function clearForm() {
   ["f-nameAr","f-nameEn","f-slug","f-bio","f-wa","f-ig","f-tg","f-fb","f-tt","f-pubg","f-tgch"].forEach(function(id){
     document.getElementById(id).value="";
   });
-  document.getElementById("f-photo").value       = "";
-  document.getElementById("f-edit-id").value     = "";
-  document.getElementById("f-photo").value        = "";
-  document.getElementById("f-photo-input").value  = "";
+  document.getElementById("f-photo").value      = "";
+  document.getElementById("f-edit-id").value    = "";
+  document.getElementById("f-photo-input").value = "";
   document.getElementById("slug-preview").style.display = "none";
   document.getElementById("slug-err").style.display     = "none";
   var w=document.getElementById("photo-thumb-wrap");
@@ -486,6 +502,7 @@ function saveClient() {
   var fb    =document.getElementById("f-fb").value.trim();
   var tt    =document.getElementById("f-tt").value.trim();
   var pubg  =document.getElementById("f-pubg").value.trim();
+  var tgch  =document.getElementById("f-tgch").value.trim();
   var photo =document.getElementById("f-photo").value;
   var editId=document.getElementById("f-edit-id").value;
 
@@ -498,7 +515,6 @@ function saveClient() {
   }
 
   var old = editId ? (CACHE.find(function(c){return c.id===editId;})||{}) : {};
-  var photo = document.getElementById("f-photo").value;
 
   var obj = {
     id:     editId || Date.now().toString(),
@@ -519,44 +535,6 @@ function saveClient() {
 
 function showSlugErr(msg) {
   var el=document.getElementById("slug-err"); el.textContent=msg; el.style.display="block";
-}
-
-// ── Photo ────────────────────────────────────────────────────────────────────────
-function handlePhoto(e) {
-  var file=e.target.files[0]; if(!file) return;
-  var r=new FileReader();
-  r.onload=function(ev){
-    var img=new Image();
-    img.onload=function(){
-      var canvas=document.createElement("canvas");
-      var MAX=300;
-      var w=img.width, h=img.height;
-      if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
-      else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
-      canvas.width=w; canvas.height=h;
-      canvas.getContext("2d").drawImage(img,0,0,w,h);
-      setPhotoPreview(canvas.toDataURL("image/jpeg",0.6));
-    };
-    img.src=ev.target.result;
-  };
-  r.readAsDataURL(file);
-}
-function setPhotoPreview(src) {
-  document.getElementById("f-photo").value=src;
-  var w=document.getElementById("photo-thumb-wrap");
-  w.style.border="2px solid var(--gold)";
-  w.innerHTML='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover">';
-  document.getElementById("photo-btn").textContent="تغيير الصورة 🔄";
-  document.getElementById("photo-remove-btn").style.display="block";
-}
-function removePhoto() {
-  document.getElementById("f-photo").value="";
-  document.getElementById("f-photo-input").value="";
-  var w=document.getElementById("photo-thumb-wrap");
-  w.innerHTML='<i class="fa-solid fa-user" style="color:#333;font-size:22px"></i>';
-  w.style.border="2px dashed #2a2a2a";
-  document.getElementById("photo-btn").textContent="رفع صورة 📤";
-  document.getElementById("photo-remove-btn").style.display="none";
 }
 
 function updateSlugPreview() {
