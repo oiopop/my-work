@@ -249,6 +249,25 @@ function route() {
   show("view-home");
 }
 
+// ── فتح التطبيق مع fallback للموقع ──────────────────────────────────────────────
+function openApp(appUrl, webUrl) {
+  var ua        = navigator.userAgent.toLowerCase();
+  var isIOS     = /iphone|ipad|ipod/.test(ua);
+  var isAndroid = /android/.test(ua);
+  if (isIOS || isAndroid) {
+    var iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+    iframe.src = appUrl;
+    setTimeout(function() {
+      document.body.removeChild(iframe);
+      window.location.href = webUrl;
+    }, 1200);
+  } else {
+    window.open(webUrl, "_blank");
+  }
+}
+
 window.addEventListener("hashchange", route);
 window.addEventListener("DOMContentLoaded", route);
 
@@ -267,22 +286,37 @@ function checkPw() {
 }
 
 // ── Profile ─────────────────────────────────────────────────────────────────────
-function toUrl(val, base) {
+function cleanUser(val) {
   if (!val) return "";
   val = val.trim();
-  if (val.startsWith("http://") || val.startsWith("https://")) return val;
-  val = val.replace("@","");
-  return base + val;
+  // اذا رابط كامل استخرج اليوزر من آخره
+  if (val.startsWith("http://") || val.startsWith("https://")) {
+    val = val.replace(/\/$/, "").split("/").pop();
+  }
+  return val.replace("@","");
 }
 
 function renderProfile(c, el) {
+  var wa   = c.wa   ? c.wa.replace(/\D/g,"")  : "";
+  var ig   = cleanUser(c.ig);
+  var tg   = cleanUser(c.tg);
+  var fb   = c.fb   ? c.fb.trim()             : "";
+  var tt   = cleanUser(c.tt);
+  var pubg = c.pubg ? c.pubg.trim()           : "";
+
   var links = [
-    { cls:"fab fa-whatsapp",       url: c.wa   ? "https://wa.me/"           + c.wa.replace(/\D/g,"") : "" },
-    { cls:"fab fa-instagram",      url: c.ig   ? toUrl(c.ig, "https://instagram.com/")               : "" },
-    { cls:"fab fa-telegram-plane", url: c.tg   ? toUrl(c.tg, "https://t.me/")                        : "" },
-    { cls:"fab fa-facebook-f",     url: c.fb   ? toUrl(c.fb, "https://facebook.com/")                : "" },
-    { cls:"fab fa-tiktok",         url: c.tt   ? toUrl(c.tt, "https://www.tiktok.com/@")             : "" },
-    { cls:"fas fa-gamepad",        url: c.pubg ? c.pubg                                               : "" }
+    { cls:"fab fa-whatsapp",
+      url: wa ? "https://wa.me/" + wa : "" },
+    { cls:"fab fa-instagram",
+      url: ig ? "instagram://user?username=" + ig + "||https://www.instagram.com/" + ig : "" },
+    { cls:"fab fa-telegram-plane",
+      url: tg ? "tg://resolve?domain=" + tg + "||https://t.me/" + tg : "" },
+    { cls:"fab fa-facebook-f",
+      url: fb ? (fb.startsWith("http") ? fb : "https://facebook.com/" + fb) : "" },
+    { cls:"fab fa-tiktok",
+      url: tt ? "https://www.tiktok.com/@" + tt : "" },
+    { cls:"fas fa-gamepad",
+      url: pubg ? pubg : "" }
   ].filter(function(l) { return l.url; });
 
   var stars = "";
@@ -294,6 +328,12 @@ function renderProfile(c, el) {
   var photo   = c.photo ? '<img src="'+c.photo+'" alt="">' : '<i class="fa-solid fa-user"></i>';
   var bio     = c.bio   ? '<p class="p-bio">'+c.bio+'</p>' : "";
   var socials = links.map(function(l) {
+    if (l.url.indexOf("||") !== -1) {
+      var parts  = l.url.split("||");
+      var appUrl = parts[0];
+      var webUrl = parts[1];
+      return '<a href="'+webUrl+'" data-app="'+appUrl+'" data-web="'+webUrl+'" class="app-link" target="_blank" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
+    }
     return '<a href="'+l.url+'" target="_blank" rel="noreferrer"><i class="'+l.cls+'"></i></a>';
   }).join("");
 
@@ -305,6 +345,14 @@ function renderProfile(c, el) {
     '<p class="p-tag">Link-in-bio</p>' +
     bio +
     (links.length ? '<div class="social-row">'+socials+'</div>' : "");
+
+  // ربط أزرار التطبيق
+  el.querySelectorAll(".app-link").forEach(function(a) {
+    a.addEventListener("click", function(e) {
+      e.preventDefault();
+      openApp(a.getAttribute("data-app"), a.getAttribute("data-web"));
+    });
+  });
 }
 
 // ── Preview Modal ────────────────────────────────────────────────────────────────
